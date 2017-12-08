@@ -1,5 +1,5 @@
 var fs  = require("fs");
-var Tracker = require('./Tracker');
+var Tracker = require('./tracker');
 
 // Export Tracker API
 exports.Tracker = Tracker

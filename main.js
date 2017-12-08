@@ -12,6 +12,11 @@ var args = process.argv.slice(2);
 // var path = "../app/static/detections/1_prototype_video";
 var path = args[0];
 
+// If not args, just don't run the main
+if(!path) {
+  return;
+}
+
 // Larger than 40% of the frame
 var LARGEST_ALLOWED = 1920 * 40 / 100;
 

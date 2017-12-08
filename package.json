@@ -1,7 +1,7 @@
 {
-  "name": "tracker",
-  "version": "1.0.0",
-  "description": "",
+  "name": "node-tracker-by-detections",
+  "version": "0.1.0",
+  "description": "Tracker by detections wrote in javascript for node.js / browsers",
   "main": "tracker.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

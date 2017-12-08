@@ -1,6 +1,9 @@
 var fs  = require("fs");
 var Tracker = require('./Tracker');
 
+// Export Tracker API
+exports.Tracker = Tracker
+
 yolo = {};
 tracked = {};
 

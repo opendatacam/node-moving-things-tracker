@@ -1,6 +1,6 @@
 {
   "name": "node-tracker-by-detections",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Tracker by detections wrote in javascript for node.js / browsers",
   "main": "tracker.js",
   "scripts": {

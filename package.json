@@ -2,7 +2,7 @@
   "name": "node-tracker-by-detections",
   "version": "0.1.5",
   "description": "Tracker by detections wrote in javascript for node.js / browsers",
-  "main": "./bin/main.js",
+  "main": "./main.js",
   "bin": {
     "node-tracker-by-detections": "./main.js"
   },

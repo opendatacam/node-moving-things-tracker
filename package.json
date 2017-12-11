@@ -1,8 +1,11 @@
 {
   "name": "node-tracker-by-detections",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Tracker by detections wrote in javascript for node.js / browsers",
   "main": "main.js",
+  "bin": {
+    "snippet": "./main.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

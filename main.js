@@ -9,13 +9,19 @@ tracked = {};
 
 var args = process.argv.slice(2);
 
-// var path = "../app/static/detections/1_prototype_video";
+// var path = "../app/static/detections/1_prototype_video/rawdetections.txt";
 var path = args[0];
 
 // If not args, just don't run the main
 if(!path) {
   return;
 }
+
+// Path == path to rawdetections.txt file
+var arrayTemp = path.split('/')
+arrayTemp.pop()
+var pathToTrackerOutput = `${arrayTemp.join('/')}/tracker.json`
+console.log(pathToTrackerOutput);
 
 // Larger than 40% of the frame
 var LARGEST_ALLOWED = 1920 * 40 / 100;
@@ -59,7 +65,7 @@ function isTooLarge(detections) {
   }
 }
 
-fs.readFile(`${path}/rawdetections.txt`, function(err, f){
+fs.readFile(`${path}`, function(err, f){
     var lines = f.toString().split('\n');
     lines.forEach(function(l) {
       try {
@@ -91,7 +97,7 @@ fs.readFile(`${path}/rawdetections.txt`, function(err, f){
     console.log(tracked["general"].filter((item) => item.nbActiveFrame > NB_ACTIVE_FRAME).length);
 
 
-    fs.writeFile(`${path}/tracker.json`, JSON.stringify(tracked), function() {
+    fs.writeFile(`${pathToTrackerOutput}`, JSON.stringify(tracked), function() {
       console.log('tracked data wrote');
     });
 

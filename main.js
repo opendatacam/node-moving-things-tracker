@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 var fs  = require("fs");
-var Tracker = require('../tracker');
+var Tracker = require('./tracker');
 
 // Export Tracker API
 exports.Tracker = Tracker

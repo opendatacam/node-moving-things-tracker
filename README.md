@@ -124,7 +124,7 @@ rawdetections.txt
 }
 ```
 
-### Editor to define "active areas"
+### Editor to define "active areas" 
 
 > TODO
 

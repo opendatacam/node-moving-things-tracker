@@ -20,6 +20,50 @@ var computeVelocityVector = function(item1, item2, nbFrame) {
   }
 }
 
+/*
+
+  computeBearingIn360
+
+                       dY
+
+                       ^               XX
+                       |             XXX
+                       |            XX
+                       |           XX
+                       |         XX
+                       |       XXX
+                       |      XX
+                       |     XX
+                       |    XX    bearing = this angle in degree
+                       |  XX
+                       |XX
++----------------------XX----------------------->  dX
+                       |
+                       |
+                       |
+                       |
+                       |
+                       |
+                       |
+                       |
+                       |
+                       |
+                       |
+                       +
+
+*/
+
+var computeBearingIn360 = function(dx, dy) {
+  var a = Math.atan(dy / dx)
+  a = a * 180 / Math.PI
+  if(dx < 0) {
+    a = a + 180
+  } else if (dy < 0) {
+    a = a + 360 
+  }
+  return a;
+}
+
 exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLERANCE){
   var DEFAULT_UNMATCHEDFRAMES_TOLERANCE = DEFAULT_UNMATCHEDFRAMES_TOLERANCE;
   var itemTracked = {};
@@ -107,6 +151,8 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     return this.frameUnmatchedLeftBeforeDying < 0;
   }
   // average based on the last X frames
+  // TODO Improve, it's not the average currently
+  // It's the diff between 15 frames
   itemTracked.updateVelocityVector = function() {
     var AVERAGE_NBFRAME = 15;
     if(this.positionHistory.length <= AVERAGE_NBFRAME) {

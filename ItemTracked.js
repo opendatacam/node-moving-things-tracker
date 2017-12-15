@@ -169,7 +169,8 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       y: this.y,
       w: this.w,
       h: this.h,
-      bearing: computeBearingIn360(this.velocity.dx, this.velocity.dy),
+      // Here we negate dy to be in "normal" carthesian coordinates
+      bearing: computeBearingIn360(this.velocity.dx, - this.velocity.dy),
       name: this.name,
       isZombie: this.isZombie,
       zombieOpacity: this.frameUnmatchedLeftBeforeDying / DEFAULT_UNMATCHEDFRAMES_TOLERANCE,

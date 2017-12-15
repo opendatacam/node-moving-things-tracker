@@ -169,7 +169,7 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       y: this.y,
       w: this.w,
       h: this.h,
-      bearing: Math.atan(this.velocity.dy / this.velocity.dx),
+      bearing: computeBearingIn360(this.velocity.dx, this.velocity.dy),
       name: this.name,
       isZombie: this.isZombie,
       zombieOpacity: this.frameUnmatchedLeftBeforeDying / DEFAULT_UNMATCHEDFRAMES_TOLERANCE,

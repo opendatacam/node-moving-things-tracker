@@ -120,9 +120,11 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
   }
   itemTracked.makeAvailable = function() {
     this.available = true;
+    return this;
   }
   itemTracked.makeUnavailable = function() {
     this.available = false;
+    return this;
   }
   itemTracked.countDown = function(frameNb) {
     // Set frame disappear number 

@@ -117,8 +117,11 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
   // For now don't add the index in yolo array
   var treeDetectionsOfThisFrame = new kdTree(detectionsOfThisFrame, computeDistance, ["x", "y", "w", "h"]);
 
+  console.log(`Frame nb ${frameNb}`);
+
   // SCENARIO 1: itemsTracked map is empty
   if(mapOfItemsTracked.size === 0) {
+    console.log('SCENARIO 1: itemsTracked map is empty')
     // Just add every detected item as item Tracked
     detectionsOfThisFrame.forEach(function(itemDetected) {
       var newItemTracked = ItemTracked(itemDetected, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLERANCE)
@@ -130,12 +133,18 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
   }
   // SCENARIO 2: We have fewer itemTracked than item detected by YOLO in the new frame
   else if (mapOfItemsTracked.size <= detectionsOfThisFrame.length) {
+    console.log('SCENARIO 2: We have fewer itemTracked than item detected by YOLO in the new frame')
+    // console.log(`nbItemTracked: ${mapOfItemsTracked.size}`)
+    // console.log(`nbYOLOMatch: ${detectionsOfThisFrame.length}`)
+    var nbItemTrackedUpdated = 0;
     var matchedList = new Array(detectionsOfThisFrame.length);
     matchedList.fill(false);
     // Match existing Tracked items with the items detected in the new frame
     // For each look in the new detection to find the closest match
     mapOfItemsTracked.forEach(function(itemTracked) {
       
+      itemTracked.makeAvailable();
+
       var treeSearchResult = treeDetectionsOfThisFrame.nearest(itemTracked, 1, KTREESEARCH_LIMIT)[0];
 
       // If we have found something
@@ -145,13 +154,43 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
         // Update properties of tracked object
         var updatedTrackedItemProperties = detectionsOfThisFrame[indexClosestNewDetectedItem]
         mapOfItemsTracked.get(itemTracked.id)
+                        .makeUnavailable()
                         .update(updatedTrackedItemProperties, frameNb)
+        nbItemTrackedUpdated++
       }
     });
 
+    // Start killing the itemTracked (and predicting next position) 
+    // that are tracked but haven't been matched this frame
+    mapOfItemsTracked.forEach(function(itemTracked) {
+      if(itemTracked.available) {
+        itemTracked.countDown(frameNb);
+        itemTracked.updateTheoricalPosition();
+        if(itemTracked.isDead()) {
+          mapOfItemsTracked.delete(itemTracked.id);
+          treeItemsTracked.remove(itemTracked);
+          mapOfAllItemsTracked.set(itemTracked.id, itemTracked);
+        }
+      }
+    });
+
+    // console.log(`nbItemTracked Updated: ${nbItemTrackedUpdated}`)
+    // console.log(`***********************************************`)
+    // console.log(`***********************************************`)
+    // console.log(`***********************************************`)
+
     // Add any unmatched items as new trackedItems
+    // TODO IF those new items are not too similar to existing trackedItems
+    // This would avoid adding some double match of YOLO and bring down drasticly reassignments
+    // Because those new items are either new cars or less "quality" existing cars detections
     matchedList.forEach(function(matched, index) {
+      // Iterate through unmatched new detections
       if(!matched) {
+        // Do not add as new tracked item if it is too similar to an existing one 
+        // mapOfItemsTracked.forEach(function(itemTracked) {
+        //   var treeSearchResult = treeDetectionsOfThisFrame.nearest(itemTracked, 1, KTREESEARCH_LIMIT)[0];
+        // });
+
         var newItemTracked = ItemTracked(detectionsOfThisFrame[index], frameNb, DEFAULT_UNMATCHEDFRAMES_TOLERANCE)
         // Add it to the map
         mapOfItemsTracked.set(newItemTracked.id, newItemTracked)
@@ -159,12 +198,10 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
         treeItemsTracked.insert(newItemTracked);
       }
     });
-
-    // TODO
-    // We should start killing the itemTracked that haven't been matched also as scenario 3 
   }
   // SCENARIO 3 : We have more itemTracked than item detected by YOLO in the new frame
   else {
+    console.log('SCENARIO 3 : We have more itemTracked than item detected by YOLO in the new frame')
     // All itemTracked should start as beeing available for matching
     mapOfItemsTracked.forEach(function(itemTracked) {
       itemTracked.makeAvailable();

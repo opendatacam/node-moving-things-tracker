@@ -29,6 +29,40 @@ var computeEuclidianDistance = function(item1, item2) {
   return Math.sqrt( Math.pow((item1.x - item2.x), 2) + Math.pow((item1.y- item2.y), 2));
 }
 
+var getRectangleEdges = function(item) {
+  return {
+    x0: item.x,
+    y0: item.y,
+    x1: item.x + item.w,
+    y1: item.y + item.h
+  }
+}
+
+var iouAreas = function(item1, item2) {
+
+  var rect1 = getRectangleEdges(item1);
+  var rect2 = getRectangleEdges(item2);
+  
+  // Get overlap rectangle
+  var overlap_x0 = Math.max(rect1.x0, rect2.x0)
+  var overlap_y0 = Math.max(rect1.y0, rect2.y0)
+  var overlap_x1 = Math.min(rect1.x1, rect2.x1)
+  var overlap_y1 = Math.min(rect1.y1, rect2.y1)
+
+  // if there an overlap
+  if((overlap_x1 - overlap_x0) <= 0 || (overlap_y1 - overlap_y0) <= 0) {
+    // no overlap
+    return 0
+  } else {
+    area_rect1 = item1.w * item1.h
+    area_rect2 = item2.w * item2.h
+    area_intersection = (overlap_x1 - overlap_x0) * (overlap_y1 - overlap_y0)
+    area_union = area_rect1 + area_rect2 - area_intersection
+    return area_intersection / area_union
+  }
+
+}
+
 // Distance function that takes in account bbox size + position
 var computeDistance = function(item1, item2) {
   //** 1. COMPUTE EUCLIDIAN DISTANCE BETWEEN CENTERS */
@@ -51,9 +85,19 @@ var computeDistance = function(item1, item2) {
     // this is a way to exclude the item from beeing matched
     sizeVariation = KTREESEARCH_LIMIT + 1;
   }
+
+  /* IOU distance */
+  var iou = iouAreas(item1, item2);
+
+  var distance = 1 - iou;
+  if(distance === 1) {
+    distance = KTREESEARCH_LIMIT + 1;
+  }
   // console.log(`euclidianDistance ${euclidianDistance}`);
   // console.log(`sizeVariation ${sizeVariation}`);
-  return euclidianDistance + sizeVariation;
+  // console.log(`distance ${euclidianDistance + sizeVariation}`)
+  // console.log(distance);
+  return distance;
 }
 
 exports.reset = function() {

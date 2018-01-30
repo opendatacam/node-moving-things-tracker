@@ -121,8 +121,6 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
   // For now don't add the index in yolo array
   var treeDetectionsOfThisFrame = new kdTree(detectionsOfThisFrame, computeDistance, ["x", "y", "w", "h"]);
 
-  // console.log(`Frame nb ${frameNb}`);
-
   // SCENARIO 1: itemsTracked map is empty
   if(mapOfItemsTracked.size === 0) {
     // console.log('SCENARIO 1: itemsTracked map is empty')
@@ -137,9 +135,6 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
   }
   // SCENARIO 2: We have fewer itemTracked than item detected by YOLO in the new frame
   else if (mapOfItemsTracked.size <= detectionsOfThisFrame.length) {
-    // console.log('SCENARIO 2: We have fewer itemTracked than item detected by YOLO in the new frame')
-    // console.log(`nbItemTracked: ${mapOfItemsTracked.size}`)
-    // console.log(`nbYOLOMatch: ${detectionsOfThisFrame.length}`)
     var nbItemTrackedUpdated = 0;
     var matchedList = new Array(detectionsOfThisFrame.length);
     matchedList.fill(false);
@@ -178,15 +173,9 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
       }
     });
 
-    // console.log(`nbItemTracked Updated: ${nbItemTrackedUpdated}`)
-    // console.log(`***********************************************`)
-    // console.log(`***********************************************`)
-    // console.log(`***********************************************`)
-
-    // Add any unmatched items as new trackedItems
-    // IF those new items are not too similar to existing trackedItems
-    // This would avoid adding some double match of YOLO and bring down drasticly reassignments
-    // Because those new items are either new cars or less "quality" existing cars detections
+    // Add any unmatched items as new trackedItem only if those new items are not too similar
+    // to existing trackedItems this avoids adding some double match of YOLO and bring down 
+    // drasticly reassignments
     if(mapOfItemsTracked.size > 0) { // Safety check to see if we still have object tracked (could have been deleted previously)
       // Rebuild tracked item tree to take in account the new positions
       treeItemsTracked = new kdTree(Array.from(mapOfItemsTracked.values()), computeDistance, ["x", "y", "w", "h"]);
@@ -232,22 +221,21 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
         var itemTrackedMatched = mapOfItemsTracked.get(treeSearchResult[0].id);
 
         if(itemTrackedMatched.available) {
+          // If not matched yet this frame, just update it an make unavailable
           itemTrackedMatched.makeUnavailable();
-          // cloneDeep super slow
+          // Store the distance if this item is matched again this frame
           matchedItemsDistanceBuffer[itemTrackedMatched.id] = computeDistance(itemTrackedMatched, newItemDetected)
           // Update properties
           itemTrackedMatched.update(newItemDetected, frameNb);
         } else {
-          // Already assigned.... 
-          // console.log('Already assigned... Does this detected item match better than the one we already assigned ?')
-          const distanceOfThisAssignment = computeDistance(treeSearchResult[0], newItemDetected);
-          const distanceOfPreviousAssignment =  matchedItemsDistanceBuffer[itemTrackedMatched.id];
-          // console.log('Distance this assignment: ' + distanceOfThisAssignment)
-          // console.log('Distance of previous assignment: ' + distanceOfPreviousAssignment)
-          // computeDistance
-          if(distanceOfThisAssignment < distanceOfPreviousAssignment) {
-            // console.log('==> Register this assignment which is better');
-            matchedItemsDistanceBuffer[itemTrackedMatched.id] = distanceOfThisAssignment;
+          // Already matched with a new detections for this frame
+          // But maybe this new detections matches better, let's check
+          const distanceOfThisMatch = computeDistance(treeSearchResult[0], newItemDetected);
+          const distanceOfPreviousMatch =  matchedItemsDistanceBuffer[itemTrackedMatched.id];
+          // The smaller distance the better
+          if(distanceOfThisMatch < distanceOfPreviousMatch) {
+            // Register this match which is better
+            matchedItemsDistanceBuffer[itemTrackedMatched.id] = distanceOfThisMatch;
             // Update properties
             itemTrackedMatched.update(newItemDetected, frameNb);
           }

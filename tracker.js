@@ -87,10 +87,14 @@ var computeDistance = function(item1, item2) {
   }
 
   /* IOU distance */
+  // The smaller the less overlap
   var iou = iouAreas(item1, item2);
 
+  // Invert this as the KTREESEARCH is looking for the smaller value
   var distance = 1 - iou;
-  if(distance === 1) {
+
+  // If the overlap is iou < 0.15, exclude
+  if(distance > 0.85) {
     distance = KTREESEARCH_LIMIT + 1;
   }
   // console.log(`euclidianDistance ${euclidianDistance}`);
@@ -180,24 +184,32 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
     // console.log(`***********************************************`)
 
     // Add any unmatched items as new trackedItems
-    // TODO IF those new items are not too similar to existing trackedItems
+    // IF those new items are not too similar to existing trackedItems
     // This would avoid adding some double match of YOLO and bring down drasticly reassignments
     // Because those new items are either new cars or less "quality" existing cars detections
-    matchedList.forEach(function(matched, index) {
-      // Iterate through unmatched new detections
-      if(!matched) {
-        // Do not add as new tracked item if it is too similar to an existing one 
-        // mapOfItemsTracked.forEach(function(itemTracked) {
-        //   var treeSearchResult = treeDetectionsOfThisFrame.nearest(itemTracked, 1, KTREESEARCH_LIMIT)[0];
-        // });
+    if(mapOfItemsTracked.size > 0) { // Safety check to see if we still have object tracked (could have been deleted previously)
+      // Rebuild tracked item tree to take in account the new positions
+      treeItemsTracked = new kdTree(Array.from(mapOfItemsTracked.values()), computeDistance, ["x", "y", "w", "h"]);
+      console.log(`Nb new items Unmatched : ${matchedList.filter((isMatched) => isMatched === false).length}`)
+      matchedList.forEach(function(matched, index) {
+        // Iterate through unmatched new detections
+        if(!matched) {
+          // Do not add as new tracked item if it is too similar to an existing one 
+          var treeSearchResult = treeItemsTracked.nearest(detectionsOfThisFrame[index], 1, KTREESEARCH_LIMIT)[0];
 
-        var newItemTracked = ItemTracked(detectionsOfThisFrame[index], frameNb, DEFAULT_UNMATCHEDFRAMES_TOLERANCE)
-        // Add it to the map
-        mapOfItemsTracked.set(newItemTracked.id, newItemTracked)
-        // Add it to the kd tree
-        treeItemsTracked.insert(newItemTracked);
-      }
-    });
+          if(!treeSearchResult) {
+            var newItemTracked = ItemTracked(detectionsOfThisFrame[index], frameNb, DEFAULT_UNMATCHEDFRAMES_TOLERANCE)
+            // Add it to the map
+            mapOfItemsTracked.set(newItemTracked.id, newItemTracked)
+            // Add it to the kd tree
+            treeItemsTracked.insert(newItemTracked);
+          } else {
+            console.log('Do not add, its overlapping an existing object')
+          }
+        }
+      });
+     }
+    
   }
   // SCENARIO 3 : We have more itemTracked than item detected by YOLO in the new frame
   else {

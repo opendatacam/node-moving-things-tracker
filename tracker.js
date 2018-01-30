@@ -121,11 +121,11 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
   // For now don't add the index in yolo array
   var treeDetectionsOfThisFrame = new kdTree(detectionsOfThisFrame, computeDistance, ["x", "y", "w", "h"]);
 
-  console.log(`Frame nb ${frameNb}`);
+  // console.log(`Frame nb ${frameNb}`);
 
   // SCENARIO 1: itemsTracked map is empty
   if(mapOfItemsTracked.size === 0) {
-    console.log('SCENARIO 1: itemsTracked map is empty')
+    // console.log('SCENARIO 1: itemsTracked map is empty')
     // Just add every detected item as item Tracked
     detectionsOfThisFrame.forEach(function(itemDetected) {
       var newItemTracked = ItemTracked(itemDetected, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLERANCE)
@@ -137,7 +137,7 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
   }
   // SCENARIO 2: We have fewer itemTracked than item detected by YOLO in the new frame
   else if (mapOfItemsTracked.size <= detectionsOfThisFrame.length) {
-    console.log('SCENARIO 2: We have fewer itemTracked than item detected by YOLO in the new frame')
+    // console.log('SCENARIO 2: We have fewer itemTracked than item detected by YOLO in the new frame')
     // console.log(`nbItemTracked: ${mapOfItemsTracked.size}`)
     // console.log(`nbYOLOMatch: ${detectionsOfThisFrame.length}`)
     var nbItemTrackedUpdated = 0;
@@ -190,7 +190,7 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
     if(mapOfItemsTracked.size > 0) { // Safety check to see if we still have object tracked (could have been deleted previously)
       // Rebuild tracked item tree to take in account the new positions
       treeItemsTracked = new kdTree(Array.from(mapOfItemsTracked.values()), computeDistance, ["x", "y", "w", "h"]);
-      console.log(`Nb new items Unmatched : ${matchedList.filter((isMatched) => isMatched === false).length}`)
+      // console.log(`Nb new items Unmatched : ${matchedList.filter((isMatched) => isMatched === false).length}`)
       matchedList.forEach(function(matched, index) {
         // Iterate through unmatched new detections
         if(!matched) {
@@ -204,7 +204,7 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
             // Add it to the kd tree
             treeItemsTracked.insert(newItemTracked);
           } else {
-            console.log('Do not add, its overlapping an existing object')
+            // console.log('Do not add, its overlapping an existing object')
           }
         }
       });
@@ -213,11 +213,13 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
   }
   // SCENARIO 3 : We have more itemTracked than item detected by YOLO in the new frame
   else {
-    console.log('SCENARIO 3 : We have more itemTracked than item detected by YOLO in the new frame')
+    // console.log('SCENARIO 3 : We have more itemTracked than item detected by YOLO in the new frame')
     // All itemTracked should start as beeing available for matching
     mapOfItemsTracked.forEach(function(itemTracked) {
       itemTracked.makeAvailable();
     });
+
+    var matchedItemsDistanceBuffer = {}
 
     // For every new detection of this frame, try to find a match in the existing
     // tracked items
@@ -229,9 +231,27 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
       if(treeSearchResult) {
         var itemTrackedMatched = mapOfItemsTracked.get(treeSearchResult[0].id);
 
-        itemTrackedMatched.makeUnavailable();
-        // Update properties
-        itemTrackedMatched.update(newItemDetected, frameNb);
+        if(itemTrackedMatched.available) {
+          itemTrackedMatched.makeUnavailable();
+          // cloneDeep super slow
+          matchedItemsDistanceBuffer[itemTrackedMatched.id] = computeDistance(itemTrackedMatched, newItemDetected)
+          // Update properties
+          itemTrackedMatched.update(newItemDetected, frameNb);
+        } else {
+          // Already assigned.... 
+          // console.log('Already assigned... Does this detected item match better than the one we already assigned ?')
+          const distanceOfThisAssignment = computeDistance(treeSearchResult[0], newItemDetected);
+          const distanceOfPreviousAssignment =  matchedItemsDistanceBuffer[itemTrackedMatched.id];
+          // console.log('Distance this assignment: ' + distanceOfThisAssignment)
+          // console.log('Distance of previous assignment: ' + distanceOfPreviousAssignment)
+          // computeDistance
+          if(distanceOfThisAssignment < distanceOfPreviousAssignment) {
+            // console.log('==> Register this assignment which is better');
+            matchedItemsDistanceBuffer[itemTrackedMatched.id] = distanceOfThisAssignment;
+            // Update properties
+            itemTrackedMatched.update(newItemDetected, frameNb);
+          }
+        }
       }
 
     });

@@ -1,15 +1,15 @@
 {
-  "name": "node-tracker-by-detections",
+  "name": "node-moving-things-tracker",
   "version": "0.2.1",
   "description": "Tracker by detections wrote in javascript for node.js / browsers",
   "main": "main.js",
   "bin": {
-    "node-tracker-by-detections": "main.js"
+    "node-moving-things-tracker": "main.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "@moovellab",
+  "author": "@tdurand",
   "license": "MIT",
   "dependencies": {
     "uuid": "^3.1.0"

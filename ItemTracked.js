@@ -20,6 +20,20 @@ var computeVelocityVector = function(item1, item2, nbFrame) {
   }
 }
 
+var computeGrowFactor = function(item1, item2, nbFrame) {
+  return {
+    dw: (item2.w - item1.w) / nbFrame,
+    dh: (item2.h - item1.h) / nbFrame,
+  }
+}
+
+var computeAccelerationVector = function(velocity1, velocity2, nbFrame) {
+  return {
+    dvx: (velocity2.dx - velocity1.dx) / nbFrame,
+    dvy: (velocity2.dy - velocity1.dy) / nbFrame
+  }
+}
+
 /*
 
   computeBearingIn360
@@ -84,12 +98,21 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
   itemTracked.w = properties.w;
   itemTracked.h = properties.h;
   itemTracked.name = properties.name;
-  itemTracked.positionHistory = [];
-  itemTracked.positionHistory.push({ x: properties.x, y: properties.y});
+  itemTracked.itemHistory = [];
+  itemTracked.itemHistory.push({
+    x: properties.x,
+    y: properties.y,
+    w: properties.w,
+    h: properties.h
+  });
   itemTracked.velocity = {
     dx: 0,
     dy: 0
   };
+  itemTracked.growFactor = {
+    dw: 0,
+    dh: 0
+  }
   itemTracked.nbTimeMatched = 1;
   // TODO: add itemTracked.yoloIndex
   // Assign an unique id to each Item tracked
@@ -108,15 +131,20 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     this.nbTimeMatched += 1;
     this.x = properties.x;
     this.y = properties.y;
-    this.positionHistory.push({x: this.x, y: this.y});
     this.w = properties.w;
     this.h = properties.h;
+    this.itemHistory.push({
+      x: this.x,
+      y: this.y,
+      w: this.w,
+      h: this.h
+    });
     this.name = properties.name;
     // reset dying counter
     this.frameUnmatchedLeftBeforeDying = DEFAULT_UNMATCHEDFRAMES_TOLERANCE
-    // TODO: add itemTracked.yoloIndex ?
     // Compute new velocityVector based on last positions history
     this.velocity = this.updateVelocityVector();
+    this.growFactor = this.updateGrowFactor();
   }
   itemTracked.makeAvailable = function() {
     this.available = true;
@@ -144,10 +172,18 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       this.frameUnmatchedLeftBeforeDying = -1;
     }
   }
-  itemTracked.updateTheoricalPosition = function() {
-    this.positionHistory.push({x: this.x, y: this.y});
-    this.x = this.x + this.velocity.dx;
-    this.y = this.y + this.velocity.dy;
+  itemTracked.updateTheoricalPositionAndSize = function() {
+    this.itemHistory.push({
+      x: this.x,
+      y: this.y,
+      w: this.w,
+      h: this.h
+    });
+    // console.log(this.acceleration);
+    this.x = this.x + this.velocity.dx
+    this.y = this.y + this.velocity.dy
+    this.w = this.w + this.growFactor.dw
+    this.h = this.h + this.growFactor.dh
   }
   itemTracked.isDead = function() {
     return this.frameUnmatchedLeftBeforeDying < 0;
@@ -157,12 +193,31 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
   // It's the diff between 15 frames
   itemTracked.updateVelocityVector = function() {
     var AVERAGE_NBFRAME = 15;
-    if(this.positionHistory.length <= AVERAGE_NBFRAME) {
-      return computeVelocityVector(this.positionHistory[0], this.positionHistory[this.positionHistory.length - 1], AVERAGE_NBFRAME);
+    if(this.itemHistory.length <= AVERAGE_NBFRAME) {
+      return computeVelocityVector(this.itemHistory[0], this.itemHistory[this.itemHistory.length - 1], this.itemHistory.length);
     } else {
-      return computeVelocityVector(this.positionHistory[this.positionHistory.length - AVERAGE_NBFRAME], this.positionHistory[this.positionHistory.length - 1], AVERAGE_NBFRAME);
+      return computeVelocityVector(this.itemHistory[this.itemHistory.length - AVERAGE_NBFRAME], this.itemHistory[this.itemHistory.length - 1], AVERAGE_NBFRAME);
     }
   }
+
+  itemTracked.updateGrowFactor = function() {
+    var AVERAGE_NBFRAME = 15;
+    if(this.itemHistory.length <= AVERAGE_NBFRAME) {
+      return computeGrowFactor(this.itemHistory[0], this.itemHistory[this.itemHistory.length - 1], this.itemHistory.length);
+    } else {
+      return computeGrowFactor(this.itemHistory[this.itemHistory.length - AVERAGE_NBFRAME], this.itemHistory[this.itemHistory.length - 1], AVERAGE_NBFRAME);
+    }
+  }
+
+  itemTracked.updateAccelerationVector = function() {
+    var AVERAGE_NBFRAME = 15;
+    if(this.velocityHistory.length <= AVERAGE_NBFRAME) {
+      return computeAccelerationVector(this.velocityHistory[0], this.velocityHistory[this.velocityHistory.length - 1], this.velocityHistory.length);
+    } else {
+      return computeAccelerationVector(this.velocityHistory[this.velocityHistory.length - AVERAGE_NBFRAME], this.velocityHistory[this.velocityHistory.length - 1], AVERAGE_NBFRAME);
+    }
+  }
+
   itemTracked.toJSON = function() {
     return {
       id: this.id,
@@ -175,7 +230,7 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       bearing: computeBearingIn360(this.velocity.dx, - this.velocity.dy),
       name: this.name,
       isZombie: this.isZombie,
-      zombieOpacity: this.frameUnmatchedLeftBeforeDying / DEFAULT_UNMATCHEDFRAMES_TOLERANCE,
+      zombieOpacity: 1,
       appearFrame: this.appearFrame,
       disappearFrame: this.disappearFrame
     }

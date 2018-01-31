@@ -1,5 +1,6 @@
 var ItemTracked = require('./ItemTracked').ItemTracked;
 var kdTree = require('./lib/kdTree-min.js').kdTree;
+var isEqual = require('lodash.isequal')
 
 
 // A dictionary of itemTracked currently
@@ -149,13 +150,71 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
       mapOfItemsTracked.forEach(function(itemTracked) {
 
         // TODO 1:  IDEA Maybe first predict ? And then try to match
+        var predictedPosition = itemTracked.predictNextPosition()
         
         itemTracked.makeAvailable();
 
-        var treeSearchResult = treeDetectionsOfThisFrame.nearest(itemTracked, 1, KTREESEARCH_LIMIT)[0];
+        var treeSearchResult = treeDetectionsOfThisFrame.nearest(predictedPosition, 1, KTREESEARCH_LIMIT)[0];
+        var treeSearchResultWithoutPrediction = treeDetectionsOfThisFrame.nearest(itemTracked, 1, KTREESEARCH_LIMIT)[0];
+        var treeSearchMultipleResults = treeDetectionsOfThisFrame.nearest(predictedPosition, 2, KTREESEARCH_LIMIT);
 
         // If we have found something
         if(treeSearchResult) {
+
+          // If 2 results see if distance are similar, maybe the shortest one 
+          // is not the best one
+          if(treeSearchMultipleResults.length === 2) {
+
+            var indexFirstChoice = 0;
+            if(treeSearchMultipleResults[0][1] > treeSearchMultipleResults[1][1]) {
+              indexFirstChoice = 1;
+            }
+
+            var detectionFirstChoice = {
+              bbox: treeSearchMultipleResults[indexFirstChoice][0],
+              distance: treeSearchMultipleResults[indexFirstChoice][1]
+            }
+
+            var detectionSecondChoice = {
+              bbox: treeSearchMultipleResults[1 - indexFirstChoice][0],
+              distance: treeSearchMultipleResults[1 - indexFirstChoice][1]
+            }
+
+            const deltaDistance = Math.abs(detectionFirstChoice.distance - detectionSecondChoice.distance);
+
+            if(deltaDistance < 0.05) {
+
+              detectionFirstChoice.area = detectionFirstChoice.bbox.w * detectionFirstChoice.bbox.h;
+              detectionSecondChoice.area = detectionSecondChoice.bbox.w * detectionSecondChoice.bbox.h;
+              var itemTrackedArea = itemTracked.w * itemTracked.h;
+
+              var deltaAreaFirstChoice = Math.abs(detectionFirstChoice.area - itemTrackedArea) / (detectionFirstChoice.area + itemTrackedArea);
+              var deltaAreaSecondChoice = Math.abs(detectionSecondChoice.area - itemTrackedArea) / (detectionSecondChoice.area + itemTrackedArea);
+
+              if(deltaAreaFirstChoice > deltaAreaSecondChoice) {
+                if(Math.abs(deltaAreaFirstChoice - deltaAreaSecondChoice) > 0.5) {
+                  console.log('Switch choice ! wise it seems different for frame: ' + frameNb + ' itemTracked ' + itemTracked.idDisplay)
+                  // console.log(frameNb);
+                  console.log(Math.abs(deltaAreaFirstChoice - deltaAreaSecondChoice));
+
+                  // Change tree search result:
+                  treeSearchResult = treeSearchMultipleResults[1 - indexFirstChoice]
+                }
+              }
+
+              // Compare the area of each, priorize the detections that as a overal similar area even 
+              // if it overlaps less
+
+
+            }
+          }
+
+           // Assess different results between predition or not
+          if(!isEqual(treeSearchResult[0], treeSearchResultWithoutPrediction && treeSearchResultWithoutPrediction[0])) {
+            // console.log('Making the predirection led to a difference result:');
+            // console.log('For frame ' + frameNb + ' itemNb ' + itemTracked.idDisplay)
+          }
+
           var indexClosestNewDetectedItem = detectionsOfThisFrame.indexOf(treeSearchResult[0]);
           // If this detections was not already matched to a tracked item
           // (otherwise it would be matched to two tracked items...)

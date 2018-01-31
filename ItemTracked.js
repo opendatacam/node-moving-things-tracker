@@ -185,6 +185,16 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     this.w = this.w + this.growFactor.dw
     this.h = this.h + this.growFactor.dh
   }
+
+  itemTracked.predictNextPosition = function() {
+    return {
+      x : this.x + this.velocity.dx,
+      y : this.y + this.velocity.dy,
+      w: this.w,
+      h: this.h
+    };
+  }
+
   itemTracked.isDead = function() {
     return this.frameUnmatchedLeftBeforeDying < 0;
   }

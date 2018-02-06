@@ -1,110 +1,78 @@
 #! /usr/bin/env node
 var fs  = require("fs");
 var Tracker = require('./tracker');
+// Utilities for cleaning up detections input
+var isInsideSomeAreas = require('./utils').isInsideSomeAreas;
+var ignoreObjectsNotToDetect = require('./utils').ignoreObjectsNotToDetect;
+var isDetectionTooLarge = require('./utils').isDetectionTooLarge;
 
-// Export Tracker API
+// Export Tracker API to use as a node module
 exports.Tracker = Tracker
 
-yolo = {};
-tracked = {};
-
+// Parse CLI args
 var args = process.argv.slice(2);
+// Path to raw detections input
+var pathRawDetectionsInput = args[0];
 
-// var path = "../app/static/detections/1_prototype_video/rawdetections.txt";
-var path = args[0];
-
-// If not args, just don't run the main
-if(!path) {
+// If input path not specified abort
+if(!pathRawDetectionsInput) {
+  console.error('Please specify the path to the raw detections file');
   return;
 }
 
-// Path == path to rawdetections.txt file
-var arrayTemp = path.split('/')
+// Compute the output file path
+// In the same folder with the name tracker.json
+var arrayTemp = pathRawDetectionsInput.split('/')
 arrayTemp.pop()
 var pathToTrackerOutput = `${arrayTemp.join('/')}/tracker.json`
-console.log(pathToTrackerOutput);
+console.log(`Tracker data will be written here: ${pathToTrackerOutput}`);
 
-// Larger than 40% of the frame
-var LARGEST_ALLOWED = 1920 * 40 / 100;
-
+// Optional params to clean up input detections
+var CLEAN_UP_DETECTIONS = true;
+var LARGEST_DETECTION_ALLOWED = 1920 * 40 / 100;
 var DETECT_LIST = ["car", "bicycle", "truck", "motorbike"];
+var IGNORED_AREAS = []; // example: [{"x":634,"y":1022,"w":192,"h":60},{"x":1240,"y":355,"w":68,"h":68}
 
-// var IGNORED_AREAS = [{"x":634,"y":1022,"w":192,"h":60},{"x":1240,"y":355,"w":68,"h":68},{"x":1295,"y":335,"w":56.00000000000001,"h":56.00000000000001},{"x":1337,"y":300,"w":57.99999999999999,"h":57.99999999999999},{"x":1378,"y":265,"w":57.99999999999999,"h":57.99999999999999},{"x":1461,"y":-2.25,"w":378,"h":282},{"x":1770,"y":825,"w":180,"h":200}];
-var IGNORED_AREAS = [];
+// Store detections input
+var detections = {}
 
-function isInsideArea(area, point) {
-  const xMin = area.x
-  const xMax = area.x + area.w;
-  const yMin = area.y
-  const yMax = area.y + area.h;
-  
-  if(point.x >= xMin &&
-     point.x <= xMax &&
-     point.y >= yMin &&
-     point.y <= yMax) {
-    return true;
-  } else {
-    return false;
-  }
-}
+// Store tracker output
+var tracker = {}
 
-function isInsideSomeAreas(areas, point) {
-  const isInside = areas.some((area) => isInsideArea(area, point));
-  return isInside;
-}
-
-function ignoreObjectsNotToDetect(detections, objectsToDetect) {
-  return detections.filter((detection) => objectsToDetect.indexOf(detection.name) > -1)
-}
-
-// clean yolo noise "large detections"
-function isTooLarge(detections) {
-  if(detections.w >= LARGEST_ALLOWED) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-fs.readFile(`${path}`, function(err, f){
+// Parse detections input
+fs.readFile(`${pathRawDetectionsInput}`, function(err, f){
     var lines = f.toString().split('\n');
     lines.forEach(function(l) {
       try {
         var detection = JSON.parse(l);
-        yolo[detection.frame] = detection.detections;
+        detections[detection.frame] = detection.detections;
       } catch (e) {
-        console.log('error parsing line:');
+        console.log('Error parsing line');
         console.log(l);
       }
     });
 
+    Object.keys(detections).forEach(function(frameNb) {
 
-    Object.keys(yolo).forEach(function(frameNb) {
-      // Remove unwanted areas
-      let detectionsForThisFrame = yolo[frameNb].filter((detection) => !isInsideSomeAreas(IGNORED_AREAS, detection));
-      // Remove unwanted items
-      detectionsForThisFrame = ignoreObjectsNotToDetect(detectionsForThisFrame, DETECT_LIST);
-      // Remove objects too big
-      detectionsForThisFrame = yolo[frameNb].filter((detection) => !isTooLarge(detection));
+      let detectionsForThisFrame = detections[frameNb]
 
-      Tracker.updateTrackedItemsWithNewFrame(detectionsForThisFrame, parseInt(frameNb, 10));
-      tracked[frameNb] = Tracker.getJSONOfTrackedItems();
+      if(CLEAN_UP_DETECTIONS) {
+        // Remove unwanted areas
+        detectionsForThisFrame = detectionsForThisFrame.filter((detection) => !isInsideSomeAreas(IGNORED_AREAS, detection));
+        // Remove unwanted items
+        detectionsForThisFrame = ignoreObjectsNotToDetect(detectionsForThisFrame, DETECT_LIST);
+        // Remove objects too big
+        detectionsForThisFrame = detections[frameNb].filter((detection) => !isDetectionTooLarge(detection, LARGEST_DETECTION_ALLOWED));
+      }
+
+      Tracker.updateTrackedItemsWithNewFrame(detectionsForThisFrame, parseInt(frameNb, 10))
+
+      tracker[frameNb] = Tracker.getJSONOfTrackedItems();
     });
 
-    tracked["general"] = Tracker.getJSONOfAllTrackedItems();
-
-    const NB_ACTIVE_FRAME = 60;
-    console.log(`Nb items that appeared then dissapeared and have been matched for more than ${NB_ACTIVE_FRAME} frames`);
-    console.log(tracked["general"].filter((item) => item.nbActiveFrame > NB_ACTIVE_FRAME).length);
-
-
-    fs.writeFile(`${pathToTrackerOutput}`, JSON.stringify(tracked), function() {
-      console.log('tracked data wrote');
+    fs.writeFile(`${pathToTrackerOutput}`, JSON.stringify(tracker), function() {
+      console.log('Output tracker data wrote');
     });
-
-    // fs.writeFile(`${path}/tracker-general.json`, JSON.stringify(tracked["general"]), function() {
-    //   console.log('tracked general data wrote');
-    // });
 });
 
 

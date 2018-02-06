@@ -1,4 +1,6 @@
 var uuidv4 = require('uuid/v4');
+var computeBearingIn360 = require('./utils').computeBearingIn360
+var computeVelocityVector = require('./utils').computeVelocityVector
 
 // Properties example
 // {
@@ -12,57 +14,6 @@ var uuidv4 = require('uuid/v4');
 
 // Use a simple incremental unique id for the display
 var idDisplay = 0;
-
-var computeVelocityVector = function(item1, item2, nbFrame) {
-  return {
-    dx: (item2.x - item1.x) / nbFrame,
-    dy: (item2.y - item1.y) / nbFrame,
-  }
-}
-
-/*
-
-  computeBearingIn360
-
-                       dY
-
-                       ^               XX
-                       |             XXX
-                       |            XX
-                       |           XX
-                       |         XX
-                       |       XXX
-                       |      XX
-                       |     XX
-                       |    XX    bearing = this angle in degree
-                       |  XX
-                       |XX
-+----------------------XX----------------------->  dX
-                       |
-                       |
-                       |
-                       |
-                       |
-                       |
-                       |
-                       |
-                       |
-                       |
-                       |
-                       +
-
-*/
-
-var computeBearingIn360 = function(dx, dy) {
-  var a = Math.atan(dy / dx)
-  a = a * 180 / Math.PI
-  if(dx < 0) {
-    a = a + 180
-  } else if (dy < 0) {
-    a = a + 360 
-  }
-  return a;
-}
 
 exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLERANCE){
   var DEFAULT_UNMATCHEDFRAMES_TOLERANCE = DEFAULT_UNMATCHEDFRAMES_TOLERANCE;
@@ -84,14 +35,18 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
   itemTracked.w = properties.w;
   itemTracked.h = properties.h;
   itemTracked.name = properties.name;
-  itemTracked.positionHistory = [];
-  itemTracked.positionHistory.push({ x: properties.x, y: properties.y});
+  itemTracked.itemHistory = [];
+  itemTracked.itemHistory.push({
+    x: properties.x,
+    y: properties.y,
+    w: properties.w,
+    h: properties.h
+  });
   itemTracked.velocity = {
     dx: 0,
     dy: 0
   };
   itemTracked.nbTimeMatched = 1;
-  // TODO: add itemTracked.yoloIndex
   // Assign an unique id to each Item tracked
   itemTracked.id = uuidv4();
   // Use an simple id for the display and debugging
@@ -108,21 +63,27 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     this.nbTimeMatched += 1;
     this.x = properties.x;
     this.y = properties.y;
-    this.positionHistory.push({x: this.x, y: this.y});
     this.w = properties.w;
     this.h = properties.h;
+    this.itemHistory.push({
+      x: this.x,
+      y: this.y,
+      w: this.w,
+      h: this.h
+    });
     this.name = properties.name;
-    // reset dying counter
+    // Reset dying counter
     this.frameUnmatchedLeftBeforeDying = DEFAULT_UNMATCHEDFRAMES_TOLERANCE
-    // TODO: add itemTracked.yoloIndex ?
     // Compute new velocityVector based on last positions history
     this.velocity = this.updateVelocityVector();
   }
   itemTracked.makeAvailable = function() {
     this.available = true;
+    return this;
   }
   itemTracked.makeUnavailable = function() {
     this.available = false;
+    return this;
   }
   itemTracked.countDown = function(frameNb) {
     // Set frame disappear number 
@@ -142,25 +103,39 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       this.frameUnmatchedLeftBeforeDying = -1;
     }
   }
-  itemTracked.updateTheoricalPosition = function() {
-    this.positionHistory.push({x: this.x, y: this.y});
-    this.x = this.x + this.velocity.dx;
-    this.y = this.y + this.velocity.dy;
+  itemTracked.updateTheoricalPositionAndSize = function() {
+    this.itemHistory.push({
+      x: this.x,
+      y: this.y,
+      w: this.w,
+      h: this.h
+    });
+    this.x = this.x + this.velocity.dx
+    this.y = this.y + this.velocity.dy
   }
+
+  itemTracked.predictNextPosition = function() {
+    return {
+      x : this.x + this.velocity.dx,
+      y : this.y + this.velocity.dy,
+      w: this.w,
+      h: this.h
+    };
+  }
+
   itemTracked.isDead = function() {
     return this.frameUnmatchedLeftBeforeDying < 0;
   }
-  // average based on the last X frames
-  // TODO Improve, it's not the average currently
-  // It's the diff between 15 frames
+  // Velocity vector based on the last 15 frames
   itemTracked.updateVelocityVector = function() {
     var AVERAGE_NBFRAME = 15;
-    if(this.positionHistory.length <= AVERAGE_NBFRAME) {
-      return computeVelocityVector(this.positionHistory[0], this.positionHistory[this.positionHistory.length - 1], AVERAGE_NBFRAME);
+    if(this.itemHistory.length <= AVERAGE_NBFRAME) {
+      return computeVelocityVector(this.itemHistory[0], this.itemHistory[this.itemHistory.length - 1], this.itemHistory.length);
     } else {
-      return computeVelocityVector(this.positionHistory[this.positionHistory.length - AVERAGE_NBFRAME], this.positionHistory[this.positionHistory.length - 1], AVERAGE_NBFRAME);
+      return computeVelocityVector(this.itemHistory[this.itemHistory.length - AVERAGE_NBFRAME], this.itemHistory[this.itemHistory.length - 1], AVERAGE_NBFRAME);
     }
   }
+
   itemTracked.toJSON = function() {
     return {
       id: this.id,
@@ -173,7 +148,6 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       bearing: computeBearingIn360(this.velocity.dx, - this.velocity.dy),
       name: this.name,
       isZombie: this.isZombie,
-      zombieOpacity: this.frameUnmatchedLeftBeforeDying / DEFAULT_UNMATCHEDFRAMES_TOLERANCE,
       appearFrame: this.appearFrame,
       disappearFrame: this.disappearFrame
     }

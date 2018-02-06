@@ -1,6 +1,6 @@
 {
   "name": "node-moving-things-tracker",
-  "version": "0.2.1",
+  "version": "0.3",
   "description": "Tracker by detections wrote in javascript for node.js / browsers",
   "main": "main.js",
   "bin": {

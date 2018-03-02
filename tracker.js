@@ -216,8 +216,8 @@ exports.reset = function() {
 }
 
 exports.getJSONOfTrackedItems = function() {
-  return Array.from(mapOfItemsTracked.values()).map(function(itemTracked) {
-    return itemTracked.toJSON();
+  return Array.from(mapOfItemsTracked.values()).filter((itemTracked) => !itemTracked.isZombie).map(function(itemTracked) {
+    return itemTracked.toJSONLite();
   });
 };
 

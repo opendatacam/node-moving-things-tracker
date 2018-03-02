@@ -138,20 +138,30 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
 
   itemTracked.toJSON = function() {
     return {
-      id: this.id,
-      idDisplay: this.idDisplay,
+      id: this.idDisplay,
       x: this.x,
       y: this.y,
       w: this.w,
       h: this.h,
       // Here we negate dy to be in "normal" carthesian coordinates
-      bearing: computeBearingIn360(this.velocity.dx, - this.velocity.dy),
-      name: this.name,
-      isZombie: this.isZombie,
-      appearFrame: this.appearFrame,
-      disappearFrame: this.disappearFrame
+      bearing: parseInt(computeBearingIn360(this.velocity.dx, - this.velocity.dy), 10),
+      name: this.name
     }
   }
+
+  itemTracked.toJSONLite = function() {
+    return {
+      id: this.idDisplay,
+      x: parseInt(this.x, 10),
+      y: parseInt(this.y, 10),
+      w: parseInt(this.w, 10),
+      h: parseInt(this.h, 10),
+      // Here we negate dy to be in "normal" carthesian coordinates
+      bearing: parseInt(computeBearingIn360(this.velocity.dx, - this.velocity.dy), 10),
+      name: this.name
+    }
+  }
+
   itemTracked.toJSONGenericInfo = function() {
     return {
       id: this.id,

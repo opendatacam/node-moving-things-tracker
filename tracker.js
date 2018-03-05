@@ -217,14 +217,18 @@ exports.reset = function() {
 
 exports.getJSONOfTrackedItems = function() {
   return Array.from(mapOfItemsTracked.values()).map(function(itemTracked) {
-    return itemTracked.toJSONLite();
+    return itemTracked.toJSON();
   });
 };
 
 exports.getJSONDebugOfTrackedItems = function() {
   return Array.from(mapOfItemsTracked.values()).map(function(itemTracked) {
-    return itemTracked.toJSON();
+    return itemTracked.toJSONDebug();
   });
+};
+
+exports.getAllTrackedItems = function() {
+  return mapOfAllItemsTracked;
 };
 
 exports.getJSONOfAllTrackedItems = function() {

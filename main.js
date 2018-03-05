@@ -75,11 +75,39 @@ fs.readFile(`${pathRawDetectionsInput}`, function(err, f){
 
       Tracker.updateTrackedItemsWithNewFrame(detectionsForThisFrame, parseInt(frameNb, 10))
 
-      if(debugOutput) {
-        tracker[frameNb] = Tracker.getJSONDebugOfTrackedItems();
-      } else {
-        tracker[frameNb] = Tracker.getJSONOfTrackedItems();
-      }
+      tracker[frameNb] = Tracker.getJSONDebugOfTrackedItems();
+      
+    });
+
+    var allTrackedItems = Tracker.getAllTrackedItems();
+
+    // Overwrite name for each id with mostly matched name to avoid having
+    // tracked item that change types
+    // For each frame
+    tracker = Object.keys(tracker).map((frameNb) => {
+      return tracker[frameNb].map((trackedItem) => {
+        // Find 
+        var item = allTrackedItems.get(trackedItem.id)
+        // Overwrite name
+        if(item) {
+          trackedItem.name = item.name
+        }
+        if(debugOutput) {
+          return trackedItem;
+        } else {
+          // If not debug, excude some fields  
+          // Ugly, would need an getJSON() as a utility function to avoid quote duplication      
+          return {
+            id: trackedItem.idDisplay,
+            x: trackedItem.x,
+            y: trackedItem.y,
+            w: trackedItem.w,
+            h: trackedItem.h,
+            name: trackedItem.name,
+            bearing: trackedItem.bearing
+          }
+        }
+      })
     });
 
     fs.writeFile(`${pathToTrackerOutput}`, JSON.stringify(tracker), function() {

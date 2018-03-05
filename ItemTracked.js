@@ -29,6 +29,9 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
   itemTracked.appearFrame = frameNb;
   itemTracked.disappearFrame = null;
   itemTracked.disappearArea = {};
+  // Keep track of the most counted class
+  itemTracked.nameCount = {};
+  itemTracked.nameCount[properties.name] = 1;
   // ==== Public =====
   itemTracked.x = properties.x;
   itemTracked.y = properties.y;
@@ -72,6 +75,11 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       h: this.h
     });
     this.name = properties.name;
+    if(this.nameCount[properties.name]) {
+      this.nameCount[properties.name]++;
+    } else {
+      this.nameCount[properties.name] = 1;
+    }
     // Reset dying counter
     this.frameUnmatchedLeftBeforeDying = DEFAULT_UNMATCHEDFRAMES_TOLERANCE
     // Compute new velocityVector based on last positions history
@@ -136,24 +144,36 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     }
   }
 
-  itemTracked.toJSON = function() {
+  itemTracked.getMostlyMatchedName = function() {
+    var nameMostlyMatchedOccurences = 0;
+    var nameMostlyMatched = '';
+    Object.keys(this.nameCount).map((name) => {
+      if(this.nameCount[name] > nameMostlyMatchedOccurences) {
+        nameMostlyMatched = name;
+        nameMostlyMatchedOccurences = this.nameCount[name]
+      }
+    })
+    return nameMostlyMatched;
+  }
+
+  itemTracked.toJSONDebug = function() {
     return {
       id: this.id,
       idDisplay: this.idDisplay,
-      x: this.x,
-      y: this.y,
-      w: this.w,
-      h: this.h,
+      x: parseInt(this.x, 10),
+      y: parseInt(this.y, 10),
+      w: parseInt(this.w, 10),
+      h: parseInt(this.h, 10),
       // Here we negate dy to be in "normal" carthesian coordinates
-      bearing: computeBearingIn360(this.velocity.dx, - this.velocity.dy),
-      name: this.name,
+      bearing: parseInt(computeBearingIn360(this.velocity.dx, - this.velocity.dy)),
+      name: this.getMostlyMatchedName(),
       isZombie: this.isZombie,
       appearFrame: this.appearFrame,
       disappearFrame: this.disappearFrame
     }
   }
 
-  itemTracked.toJSONLite = function() {
+  itemTracked.toJSON = function() {
     return {
       id: this.idDisplay,
       x: parseInt(this.x, 10),
@@ -162,7 +182,7 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       h: parseInt(this.h, 10),
       // Here we negate dy to be in "normal" carthesian coordinates
       bearing: parseInt(computeBearingIn360(this.velocity.dx, - this.velocity.dy), 10),
-      name: this.name
+      name: this.getMostlyMatchedName()
     }
   }
 
@@ -173,7 +193,8 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       appearFrame: this.appearFrame,
       disappearFrame: this.disappearFrame,
       disappearArea: this.disappearArea,
-      nbActiveFrame: this.disappearFrame - this.appearFrame
+      nbActiveFrame: this.disappearFrame - this.appearFrame,
+      name: this.getMostlyMatchedName()
     }
   }
   return itemTracked;

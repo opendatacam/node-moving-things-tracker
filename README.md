@@ -72,6 +72,39 @@ rawdetections.txt
 
 **Tracker Output**
 
+_Normal mode:_
+
+```javascript
+{
+  // Tracker data for each frame
+  "43": [
+    {      
+      "id": 0,
+      "x": 628,
+      "y": 144,
+      "w": 48,
+      "h": 29,
+      "name": "car",
+    },
+    {
+      "id": 1,
+      "x": 620,
+      "y": 154,
+      "w": 50,
+      "h": 35,
+      "name": "car",
+    }
+  ]
+}
+```
+
+_Debug mode:_
+
+```bash
+#Run with ---debug flag at the end
+node-moving-things-tracker PATH_TO_YOLO_DETECTIONS.txt --debug
+```
+
 ```javascript
 {
   // Tracker data for each frame

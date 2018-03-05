@@ -138,14 +138,18 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
 
   itemTracked.toJSON = function() {
     return {
-      id: this.idDisplay,
+      id: this.id,
+      idDisplay: this.idDisplay,
       x: this.x,
       y: this.y,
       w: this.w,
       h: this.h,
       // Here we negate dy to be in "normal" carthesian coordinates
-      bearing: parseInt(computeBearingIn360(this.velocity.dx, - this.velocity.dy), 10),
-      name: this.name
+      bearing: computeBearingIn360(this.velocity.dx, - this.velocity.dy),
+      name: this.name,
+      isZombie: this.isZombie,
+      appearFrame: this.appearFrame,
+      disappearFrame: this.disappearFrame
     }
   }
 

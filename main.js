@@ -9,10 +9,18 @@ var isDetectionTooLarge = require('./utils').isDetectionTooLarge;
 // Export Tracker API to use as a node module
 exports.Tracker = Tracker
 
+var debugOutput = false;
+
 // Parse CLI args
 var args = process.argv.slice(2);
 // Path to raw detections input
 var pathRawDetectionsInput = args[0];
+
+if(args.indexOf('--debug') > -1) {
+  console.log('debug mode');
+  // Running in debug mode output full json
+  debugOutput = true;
+}
 
 // If input path not specified abort
 if(!pathRawDetectionsInput) {
@@ -67,7 +75,11 @@ fs.readFile(`${pathRawDetectionsInput}`, function(err, f){
 
       Tracker.updateTrackedItemsWithNewFrame(detectionsForThisFrame, parseInt(frameNb, 10))
 
-      tracker[frameNb] = Tracker.getJSONOfTrackedItems();
+      if(debugOutput) {
+        tracker[frameNb] = Tracker.getJSONDebugOfTrackedItems();
+      } else {
+        tracker[frameNb] = Tracker.getJSONOfTrackedItems();
+      }
     });
 
     fs.writeFile(`${pathToTrackerOutput}`, JSON.stringify(tracker), function() {

@@ -37,7 +37,7 @@ npm install --save node-moving-things-tracker
 > NOTE : usage is customized for the use case of [lab-beat-the-traffic](https://github.com/moovel/lab-beat-the-traffic) 
 
 ```bash
-node-moving-things-tracker PATH_TO_YOLO_DETECTIONS.txt
+node-moving-things-tracker --input PATH_TO_YOLO_DETECTIONS.txt
 # This will output a tracker.json file in the same folder containing the tracker data
 ```
 
@@ -102,7 +102,7 @@ _Debug mode:_
 
 ```bash
 #Run with ---debug flag at the end
-node-moving-things-tracker PATH_TO_YOLO_DETECTIONS.txt --debug
+node-moving-things-tracker --debug --input PATH_TO_YOLO_DETECTIONS.txt
 ```
 
 ```javascript

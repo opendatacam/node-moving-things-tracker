@@ -38,6 +38,9 @@ console.log(`Tracker data will be written here: ${pathToTrackerOutput}`);
 
 // Specific mode for beat the traffic game
 var MODE_BEATTHETRAFFIC = args.mode === "beatthetraffic";
+var BUS_AS_TRUCKS = args.busastruck;
+var PERSON_AS_MOTORBIKE = args.personasmotorbike;
+
 var LARGEST_DETECTION_ALLOWED = 1920 * 25 / 100;
 var DETECT_LIST = ["bicycle", "car", "motorbike", "bus", "truck", "person"];
 var TRACKED_LIST = ["car", "motorbike", "truck"]
@@ -95,6 +98,20 @@ fs.readFile(`${pathRawDetectionsInput}`, function(err, f){
           var mostlyMatchedName = trackedItem.name;
           if(item) {
             mostlyMatchedName = item.getMostlyMatchedName()
+          }
+
+          if(BUS_AS_TRUCKS) {
+            if(mostlyMatchedName === "bus") {
+              // console.log('Change bus to truck');
+              mostlyMatchedName = "truck"
+            }
+          }
+
+          if(PERSON_AS_MOTORBIKE) {
+            if(mostlyMatchedName === "person") {
+              // console.log('Change person to motorbike');
+              mostlyMatchedName = "motorbike"
+            }
           }
 
           if(debugOutput) {

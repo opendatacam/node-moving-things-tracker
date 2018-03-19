@@ -44,7 +44,7 @@ Tracker.updateTrackedItemsWithNewFrame(detectionScaledOfThisFrame, currentFrame)
 const trackerDataForThisFrame = Tracker.getJSONOfTrackedItems();
 ```
 
-Example: [`Counter.js`](https://github.com/moovel/lab-open-data-cam/blob/master/server/counter/Counter.js#L57) of the Open Data Cam project.
+Example: [`Counter.js`](https://github.com/moovel/lab-open-data-cam/blob/master/server/counter/Counter.js#L143) of the Open Data Cam project.
 
 **Command line usage**
 

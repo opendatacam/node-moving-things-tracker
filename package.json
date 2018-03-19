@@ -1,7 +1,7 @@
 {
   "name": "node-moving-things-tracker",
   "version": "0.4.2",
-  "description": "Tracker by detections wrote in javascript for node.js / browsers",
+  "description": "Tracker by detections in javascript for node.js / browsers",
   "main": "main.js",
   "bin": {
     "node-moving-things-tracker": "main.js"
@@ -10,6 +10,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "@tdurand",
+  "contributors": [
+    "Benedikt Groß <b-g> (http://benedikt-gross.de/)"
+  ],
   "license": "MIT",
   "dependencies": {
     "lodash.isequal": "^4.5.0",

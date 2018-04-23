@@ -9,8 +9,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "bundle": "browserify main.js -t babelify --standalone movingThingsTracker -o dist/moving-things-tracker.js",
-    "bundle-min": "browserify main.js -t babelify --standalone movingThingsTracker | uglifyjs > dist/moving-things-tracker.min.js",
+    "bundle": "browserify tracker.js -t babelify --standalone movingThingsTracker -o dist/moving-things-tracker.js",
+    "bundle-min": "browserify tracker.js -t babelify --standalone movingThingsTracker | uglifyjs > dist/moving-things-tracker.min.js",
     "dist": "npm run bundle && npm run bundle-min"
   },
   "author": "@tdurand",

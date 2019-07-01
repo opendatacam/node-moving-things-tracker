@@ -44,7 +44,7 @@ Tracker.updateTrackedItemsWithNewFrame(detectionScaledOfThisFrame, currentFrame)
 const trackerDataForThisFrame = Tracker.getJSONOfTrackedItems();
 ```
 
-Example: [`Counter.js`](https://github.com/moovel/lab-open-data-cam/blob/master/server/counter/Counter.js#L143) of the Open Data Cam project.
+Example: [`Opendatacam.js`](https://github.com/opendatacam/opendatacam/blob/master/server/Opendatacam.js#L228) of the Open Data Cam project.
 
 **Command line usage**
 
@@ -91,6 +91,7 @@ _Normal mode:_
       "w": 48,
       "h": 29,
       "name": "car",
+      "isZombie": false
     },
     {
       "id": 1,
@@ -99,6 +100,7 @@ _Normal mode:_
       "w": 50,
       "h": 35,
       "name": "car",
+      "isZombie": true
     }
   ]
 }

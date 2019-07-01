@@ -182,7 +182,8 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       h: parseInt(this.h, 10),
       // Here we negate dy to be in "normal" carthesian coordinates
       bearing: parseInt(computeBearingIn360(this.velocity.dx, - this.velocity.dy), 10),
-      name: this.getMostlyMatchedName()
+      name: this.getMostlyMatchedName(),
+      isZombie: this.isZombie
     }
   }
 

@@ -80,7 +80,7 @@ fs.readFile(`${pathRawDetectionsInput}`, function(err, f){
 
       Tracker.updateTrackedItemsWithNewFrame(detectionsForThisFrame, parseInt(frameNb, 10))
 
-      tracker[frameNb] = Tracker.getJSONDebugOfTrackedItems();
+      tracker[frameNb] = Tracker.getJSONOfTrackedItems();
       
     });
 

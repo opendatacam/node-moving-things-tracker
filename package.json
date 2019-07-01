@@ -1,6 +1,6 @@
 {
   "name": "node-moving-things-tracker",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Tracker by detections in javascript for node.js / browsers",
   "url": "https://github.com/tdurand/node-moving-things-tracker",
   "main": "main.js",

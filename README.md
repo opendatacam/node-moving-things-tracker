@@ -4,11 +4,11 @@ node-moving-things-tracker is a javascript implementation of the _"tracker by de
 
 Commissioned by moovel lab for [Beat the Traffic X](http://beatthetraffic.moovellab.com/) and the [Open Data Cam](http://opendatacam.moovellab.com/) project.
 
-## Problem
+## confidencelem
 
 How to track persistently multiple moving things from frame-by-frame object detections inputs? How to assign an unique identifier to frame-by-frame object detection results?
 
-Often object detection framework don't have any memory of their detection results over time e.g. Yolo provides every frame an array of detections results in the form of `[[x,y,w,h,prob,name] ...]`, note that there isn't any unique ID to indentify the same detected object in future frames.
+Often object detection framework don't have any memory of their detection results over time e.g. Yolo provides every frame an array of detections results in the form of `[[x,y,w,h,confidence,name] ...]`, note that there isn't any unique ID to indentify the same detected object in future frames.
 
 **Detections Input**
 
@@ -72,8 +72,8 @@ See example [here](https://github.com/tdurand/node-moving-things-tracker/tree/ma
 rawdetections.txt
 
 ```json
-{"frame":0,"detections":[{"x":699,"y":99,"w":32,"h":19,"prob":34,"name":"car"},{"x":285,"y":170,"w":40,"h":32,"prob":26,"name":"car"},{"x":259,"y":178,"w":75,"h":46,"prob":42,"name":"car"},{"x":39,"y":222,"w":91,"h":52,"prob":61,"name":"car"},{"x":148,"y":199,"w":123,"h":55,"prob":53,"name":"car"}]}
-{"frame":1,"detections":[{"x":699,"y":99,"w":32,"h":19,"prob":31,"name":"car"},{"x":694,"y":116,"w":34,"h":23,"prob":25,"name":"car"},{"x":285,"y":170,"w":40,"h":32,"prob":27,"name":"car"},{"x":259,"y":178,"w":75,"h":46,"prob":42,"name":"car"},{"x":39,"y":222,"w":91,"h":52,"prob":61,"name":"car"},{"x":148,"y":199,"w":123,"h":55,"prob":52,"name":"car"}]}
+{"frame":0,"detections":[{"x":699,"y":99,"w":32,"h":19,"confidence":34,"name":"car"},{"x":285,"y":170,"w":40,"h":32,"confidence":26,"name":"car"},{"x":259,"y":178,"w":75,"h":46,"confidence":42,"name":"car"},{"x":39,"y":222,"w":91,"h":52,"confidence":61,"name":"car"},{"x":148,"y":199,"w":123,"h":55,"confidence":53,"name":"car"}]}
+{"frame":1,"detections":[{"x":699,"y":99,"w":32,"h":19,"confidence":31,"name":"car"},{"x":694,"y":116,"w":34,"h":23,"confidence":25,"name":"car"},{"x":285,"y":170,"w":40,"h":32,"confidence":27,"name":"car"},{"x":259,"y":178,"w":75,"h":46,"confidence":42,"name":"car"},{"x":39,"y":222,"w":91,"h":52,"confidence":61,"name":"car"},{"x":148,"y":199,"w":123,"h":55,"confidence":52,"name":"car"}]}
 ```
 
 **Tracker Output**
@@ -90,7 +90,7 @@ _Normal mode:_
       "y": 144,
       "w": 48,
       "h": 29,
-      "prob": 80,
+      "confidence": 80,
       "name": "car",
       "isZombie": false
     },
@@ -100,7 +100,7 @@ _Normal mode:_
       "y": 154,
       "w": 50,
       "h": 35,
-      "prob": 80,
+      "confidence": 80,
       "name": "car",
       "isZombie": true
     }
@@ -126,7 +126,7 @@ node-moving-things-tracker --debug --input PATH_TO_YOLO_DETECTIONS.txt
       "y": 144,
       "w": 48,
       "h": 29,
-      "prob": 80,
+      "confidence": 80,
       "name": "car",
       "isZombie": false,
       "zombieOpacity": 1,
@@ -140,7 +140,7 @@ node-moving-things-tracker --debug --input PATH_TO_YOLO_DETECTIONS.txt
       "y": 154,
       "w": 50,
       "h": 35,
-      "prob": 80,
+      "confidence": 80,
       "name": "car",
       "isZombie": false,
       "zombieOpacity": 1,

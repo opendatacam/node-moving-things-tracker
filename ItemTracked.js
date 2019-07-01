@@ -169,7 +169,7 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       y: parseInt(this.y, 10),
       w: parseInt(this.w, 10),
       h: parseInt(this.h, 10),
-      confidence: this.confidence,
+      confidence: Math.round(this.confidence * 100) / 100,
       // Here we negate dy to be in "normal" carthesian coordinates
       bearing: parseInt(computeBearingIn360(this.velocity.dx, - this.velocity.dy)),
       name: this.getMostlyMatchedName(),
@@ -186,7 +186,7 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       y: parseInt(this.y, 10),
       w: parseInt(this.w, 10),
       h: parseInt(this.h, 10),
-      confidence: this.confidence,
+      confidence: Math.round(this.confidence * 100) / 100,
       // Here we negate dy to be in "normal" carthesian coordinates
       bearing: parseInt(computeBearingIn360(this.velocity.dx, - this.velocity.dy), 10),
       name: this.getMostlyMatchedName(),

@@ -1,10 +1,10 @@
 # node-moving-things-tracker
 
-node-moving-things-tracker is a javascript implementation of the _"tracker by detections"_ for realtime multiple object tracking (MOT) in node.js / browsers. 
+node-moving-things-tracker is a javascript implementation of a _"tracker by detections"_ for realtime multiple object tracking (MOT) in node.js / browsers. 
 
 Commissioned by moovel lab for [Beat the Traffic X](http://beatthetraffic.moovellab.com/) and the [Open Data Cam](http://opendatacam.moovellab.com/) project.
 
-## confidencelem
+## Problem
 
 How to track persistently multiple moving things from frame-by-frame object detections inputs? How to assign an unique identifier to frame-by-frame object detection results?
 

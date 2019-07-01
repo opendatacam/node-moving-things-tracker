@@ -52,6 +52,11 @@ var detections = {}
 // Store tracker output
 var tracker = {}
 
+// If MODE is BEATTHETRAFFIC keep all tracker history in memory
+if(MODE_BEATTHETRAFFIC) {
+  Tracker.enableKeepInMemory();
+}
+
 // Parse detections input
 fs.readFile(`${pathRawDetectionsInput}`, function(err, f){
     var lines = f.toString().split('\n');

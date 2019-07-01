@@ -21,6 +21,9 @@ var mapOfItemsTracked = new Map();
 // Useful to ouput the file of all items tracked
 var mapOfAllItemsTracked = new Map();
 
+// By default, we do not keep all the history in memory
+var keepAllHistoryInMemory = false;
+
 // Implementation detail, we store the distance in a KDTREE, we want to be able to exclude values from 
 // the kdtree search by assigning them KDTREESEARCH_LIMIT + 1
 var KDTREESEARCH_LIMIT = 10000;
@@ -202,7 +205,9 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
         if(itemTracked.isDead()) {
           mapOfItemsTracked.delete(itemTracked.id);
           treeItemsTracked.remove(itemTracked);
-          mapOfAllItemsTracked.set(itemTracked.id, itemTracked);
+          if(keepAllHistoryInMemory) {
+            mapOfAllItemsTracked.set(itemTracked.id, itemTracked);
+          }
         }
       }
     });
@@ -213,6 +218,14 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
 exports.reset = function() {
   mapOfItemsTracked = new Map();
   mapOfAllItemsTracked = new Map();
+}
+
+exports.enableKeepInMemory = function() {
+  keepAllHistoryInMemory = true;
+}
+
+exports.disableKeepInMemory = function() {
+  keepAllHistoryInMemory = false;
 }
 
 exports.getJSONOfTrackedItems = function() {
@@ -227,10 +240,12 @@ exports.getJSONDebugOfTrackedItems = function() {
   });
 };
 
+// Work only if keepInMemory is enabled
 exports.getAllTrackedItems = function() {
   return mapOfAllItemsTracked;
 };
 
+// Work only if keepInMemory is enabled
 exports.getJSONOfAllTrackedItems = function() {
   return Array.from(mapOfAllItemsTracked.values()).map(function(itemTracked) {
     return itemTracked.toJSONGenericInfo();

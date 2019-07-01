@@ -38,12 +38,14 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
   itemTracked.w = properties.w;
   itemTracked.h = properties.h;
   itemTracked.name = properties.name;
+  itemTracked.prob = properties.prob;
   itemTracked.itemHistory = [];
   itemTracked.itemHistory.push({
     x: properties.x,
     y: properties.y,
     w: properties.w,
-    h: properties.h
+    h: properties.h,
+    prob: properties.prob
   });
   itemTracked.velocity = {
     dx: 0,
@@ -68,11 +70,13 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     this.y = properties.y;
     this.w = properties.w;
     this.h = properties.h;
+    this.prob = properties.prob;
     this.itemHistory.push({
       x: this.x,
       y: this.y,
       w: this.w,
-      h: this.h
+      h: this.h,
+      prob: this.prob
     });
     this.name = properties.name;
     if(this.nameCount[properties.name]) {
@@ -116,7 +120,8 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       x: this.x,
       y: this.y,
       w: this.w,
-      h: this.h
+      h: this.h,
+      prob: this.prob
     });
     this.x = this.x + this.velocity.dx
     this.y = this.y + this.velocity.dy
@@ -164,6 +169,7 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       y: parseInt(this.y, 10),
       w: parseInt(this.w, 10),
       h: parseInt(this.h, 10),
+      prob: parseInt(this.prob, 10),
       // Here we negate dy to be in "normal" carthesian coordinates
       bearing: parseInt(computeBearingIn360(this.velocity.dx, - this.velocity.dy)),
       name: this.getMostlyMatchedName(),
@@ -180,6 +186,7 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
       y: parseInt(this.y, 10),
       w: parseInt(this.w, 10),
       h: parseInt(this.h, 10),
+      prob: parseInt(this.prob, 10),
       // Here we negate dy to be in "normal" carthesian coordinates
       bearing: parseInt(computeBearingIn360(this.velocity.dx, - this.velocity.dy), 10),
       name: this.getMostlyMatchedName(),

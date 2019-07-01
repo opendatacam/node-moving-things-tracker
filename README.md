@@ -90,6 +90,7 @@ _Normal mode:_
       "y": 144,
       "w": 48,
       "h": 29,
+      "prob": 80,
       "name": "car",
       "isZombie": false
     },
@@ -99,6 +100,7 @@ _Normal mode:_
       "y": 154,
       "w": 50,
       "h": 35,
+      "prob": 80,
       "name": "car",
       "isZombie": true
     }
@@ -124,6 +126,7 @@ node-moving-things-tracker --debug --input PATH_TO_YOLO_DETECTIONS.txt
       "y": 144,
       "w": 48,
       "h": 29,
+      "prob": 80,
       "name": "car",
       "isZombie": false,
       "zombieOpacity": 1,
@@ -137,6 +140,7 @@ node-moving-things-tracker --debug --input PATH_TO_YOLO_DETECTIONS.txt
       "y": 154,
       "w": 50,
       "h": 35,
+      "prob": 80,
       "name": "car",
       "isZombie": false,
       "zombieOpacity": 1,

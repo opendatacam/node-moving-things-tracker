@@ -46,6 +46,10 @@ var DETECT_LIST = ["bicycle", "car", "motorbike", "bus", "truck", "person"];
 var TRACKED_LIST = ["car", "motorbike", "truck"]
 var IGNORED_AREAS = []; // example: [{"x":634,"y":1022,"w":192,"h":60},{"x":1240,"y":355,"w":68,"h":68}
 
+
+// MOT Challenge mode
+var MODE_MOTChallenge = args.mode === "motchallenge";
+
 // Store detections input
 var detections = {}
 
@@ -60,15 +64,49 @@ if(MODE_BEATTHETRAFFIC) {
 // Parse detections input
 fs.readFile(`${pathRawDetectionsInput}`, function(err, f){
     var lines = f.toString().split('\n');
-    lines.forEach(function(l) {
-      try {
-        var detection = JSON.parse(l);
-        detections[detection.frame] = detection.detections;
-      } catch (e) {
-        console.log('Error parsing line');
-        console.log(l);
-      }
-    });
+
+    if(!MODE_MOTChallenge) {
+      lines.forEach(function(l) {
+        try {
+          var detection = JSON.parse(l);
+          detections[detection.frame] = detection.detections;
+        } catch (e) {
+          console.log('Error parsing line');
+          console.log(l);
+        }
+      });
+    } else {
+      // For MOT Challenge detections input
+      // format:
+      // <frame>, <id>, <bb_left>, <bb_top>, <bb_width>, <bb_height>, <conf>, <x>, <y>, <z>
+      // example:
+      // 1, -1, 794.27, 247.59, 71.245, 174.88, 0.99999964, -1, -1, -1
+      // 1, -1, 1648.1, 119.61, 66.504, 163.24, 0.99999964, -1, -1, -1
+      // 2, -1, 1648.1, 119.61, 66.504, 163.24, 0.99999964, -1, -1, -1
+      // 2, -1, 1648.1, 119.61, 66.504, 163.24, 0.99999964, -1, -1, -1
+      lines.forEach((line) => {
+        var detectionOfThisFrameArray = line.split(",");
+        var detectionFrameIndex = parseInt(detectionOfThisFrameArray[0], 10);
+        if(!Number.isNaN(detectionFrameIndex)) {
+          var detection = { 
+            x: parseFloat(detectionOfThisFrameArray[2]),
+            y: parseFloat(detectionOfThisFrameArray[3]),
+            w: parseFloat(detectionOfThisFrameArray[4]),
+            h: parseFloat(detectionOfThisFrameArray[5]),
+            confidence: parseFloat(detectionOfThisFrameArray[6]) * 100,
+            name:""
+          }
+          // If it's the first object for this frame, init empty array
+          if(!detections[detectionFrameIndex]) {
+            detections[detectionFrameIndex] = []
+          }
+          detections[detectionFrameIndex].push(detection);
+        }
+      });
+      
+      //console.log(JSON.stringify(detections));
+
+    }
 
     Object.keys(detections).forEach(function(frameNb) {
 

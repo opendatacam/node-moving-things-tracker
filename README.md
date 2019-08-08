@@ -151,6 +151,16 @@ node-moving-things-tracker --debug --input PATH_TO_YOLO_DETECTIONS.txt
 }
 ```
 
+## Run on MOT Challenge dataset
+
+//TODO blabla MOT Challenge
+
+```bash
+node-moving-things-tracker --mode motchallenge --input PATH_TO_MOT_DETECTIONS.txt
+
+# Output will be in the same folder as input under the name outputTrackerMOT.txt
+```
+
 ## Limitations
 
 No params tweaking is possible via command-line for now, it is currently optimized for tracking cars in traffic videos.

@@ -194,6 +194,10 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     }
   }
 
+  itemTracked.toMOT = function(frameIndex) {
+    return `${frameIndex},${this.idDisplay},${this.x},${this.y},${this.w},${this.h},${this.confidence / 100},-1,-1,-1`;
+  }
+
   itemTracked.toJSONGenericInfo = function() {
     return {
       id: this.id,

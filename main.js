@@ -34,7 +34,16 @@ if(!pathRawDetectionsInput) {
 var arrayTemp = pathRawDetectionsInput.split('/')
 arrayTemp.pop()
 var pathToTrackerOutput = `${arrayTemp.join('/')}/tracker.json`
-console.log(`Tracker data will be written here: ${pathToTrackerOutput}`);
+var pathToMOTOutput = `${arrayTemp.join('/')}/outputTrackerMOT.txt`
+
+// MOT Challenge mode
+var MODE_MOTChallenge = args.mode === "motchallenge";
+
+if(!MODE_MOTChallenge) {
+  console.log(`Tracker data will be written here: ${pathToTrackerOutput}`); 
+} else {
+  console.log(`Tracker data will be written here: ${pathToMOTOutput}`); 
+}
 
 // Specific mode for beat the traffic game
 var MODE_BEATTHETRAFFIC = args.mode === "beatthetraffic";
@@ -47,14 +56,16 @@ var TRACKED_LIST = ["car", "motorbike", "truck"]
 var IGNORED_AREAS = []; // example: [{"x":634,"y":1022,"w":192,"h":60},{"x":1240,"y":355,"w":68,"h":68}
 
 
-// MOT Challenge mode
-var MODE_MOTChallenge = args.mode === "motchallenge";
+
 
 // Store detections input
 var detections = {}
 
 // Store tracker output
 var tracker = {}
+
+// Store MOT output
+var MOToutput = []
 
 // If MODE is BEATTHETRAFFIC keep all tracker history in memory
 if(MODE_BEATTHETRAFFIC) {
@@ -123,7 +134,11 @@ fs.readFile(`${pathRawDetectionsInput}`, function(err, f){
 
       Tracker.updateTrackedItemsWithNewFrame(detectionsForThisFrame, parseInt(frameNb, 10))
 
-      tracker[frameNb] = Tracker.getJSONOfTrackedItems();
+      if(!MODE_MOTChallenge) {
+        tracker[frameNb] = Tracker.getJSONOfTrackedItems();
+      } else {
+        MOToutput = MOToutput.concat(Tracker.getTrackedItemsInMOTFormat(frameNb));
+      }
       
     });
 
@@ -191,9 +206,15 @@ fs.readFile(`${pathRawDetectionsInput}`, function(err, f){
       });
     }
 
-    fs.writeFile(`${pathToTrackerOutput}`, JSON.stringify(tracker), function() {
-      console.log('Output tracker data wrote');
-    });
+    if(!MODE_MOTChallenge) {
+      fs.writeFile(`${pathToTrackerOutput}`, JSON.stringify(tracker), function() {
+        console.log('Output tracker data wrote');
+      });
+    } else {
+      fs.writeFile(`${pathToMOTOutput}`, MOToutput.join("\n"), function() {
+        console.log('Output MOT data wrote');
+      });
+    }
 });
 
 

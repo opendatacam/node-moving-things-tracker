@@ -240,6 +240,12 @@ exports.getJSONDebugOfTrackedItems = function() {
   });
 };
 
+exports.getTrackedItemsInMOTFormat = function(frameNb) {
+  return Array.from(mapOfItemsTracked.values()).map(function(itemTracked) {
+    return itemTracked.toMOT(frameNb);
+  });
+};
+
 // Work only if keepInMemory is enabled
 exports.getAllTrackedItems = function() {
   return mapOfAllItemsTracked;

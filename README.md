@@ -151,6 +151,46 @@ node-moving-things-tracker --debug --input PATH_TO_YOLO_DETECTIONS.txt
 }
 ```
 
+# Run on opendatacam/darknet detection data
+
+Usage with opendatacam/darknet generated tracker data.
+
+```bash
+node-moving-things-tracker --mode opendatacam-darknet --input detectionsFromDarknet.json
+# This will output a tracker.json file in the same folder containing the tracker data
+# Output format is the same as previously
+```
+
+Example detections.json file
+
+```json
+[
+  {
+    "frame_id":0, 
+    "objects": [ 
+      {"class_id":5, "name":"bus", "relative_coordinates":{"center_x":0.394363, "center_y":0.277938, "width":0.032596, "height":0.106158}, "confidence":0.414157}, 
+      {"class_id":5, "name":"bus", "relative_coordinates":{"center_x":0.363555, "center_y":0.285264, "width":0.062474, "height":0.133008}, "confidence":0.402736}
+    ] 
+  },
+  {
+    "frame_id":0, 
+    "objects": [ 
+      {"class_id":5, "name":"bus", "relative_coordinates":{"center_x":0.394363, "center_y":0.277938, "width":0.032596, "height":0.106158}, "confidence":0.414157}, 
+      {"class_id":5, "name":"bus", "relative_coordinates":{"center_x":0.363555, "center_y":0.285264, "width":0.062474, "height":0.133008}, "confidence":0.402736}
+    ] 
+  }
+]
+```
+
+
+## Run on MOT Challenge dataset
+
+```bash
+node-moving-things-tracker --mode motchallenge --input PATH_TO_MOT_DETECTIONS.txt
+
+# Output will be in the same folder as input under the name outputTrackerMOT.txt
+```
+
 ## Limitations
 
 No params tweaking is possible via command-line for now, it is currently optimized for tracking cars in traffic videos.

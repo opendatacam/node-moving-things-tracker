@@ -228,15 +228,15 @@ exports.disableKeepInMemory = function() {
   keepAllHistoryInMemory = false;
 }
 
-exports.getJSONOfTrackedItems = function() {
+exports.getJSONOfTrackedItems = function(roundInt = true) {
   return Array.from(mapOfItemsTracked.values()).map(function(itemTracked) {
-    return itemTracked.toJSON();
+    return itemTracked.toJSON(roundInt);
   });
 };
 
-exports.getJSONDebugOfTrackedItems = function() {
+exports.getJSONDebugOfTrackedItems = function(roundInt = true) {
   return Array.from(mapOfItemsTracked.values()).map(function(itemTracked) {
-    return itemTracked.toJSONDebug();
+    return itemTracked.toJSONDebug(roundInt);
   });
 };
 

@@ -161,14 +161,14 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     return nameMostlyMatched;
   }
 
-  itemTracked.toJSONDebug = function() {
+  itemTracked.toJSONDebug = function(roundInt = true) {
     return {
       id: this.id,
       idDisplay: this.idDisplay,
-      x: parseInt(this.x, 10),
-      y: parseInt(this.y, 10),
-      w: parseInt(this.w, 10),
-      h: parseInt(this.h, 10),
+      x: (roundInt ? parseInt(this.x, 10) : this.x),
+      y: (roundInt ? parseInt(this.y, 10) : this.y),
+      w: (roundInt ? parseInt(this.w, 10) : this.w),
+      h: (roundInt ? parseInt(this.h, 10) : this.h),
       confidence: Math.round(this.confidence * 100) / 100,
       // Here we negate dy to be in "normal" carthesian coordinates
       bearing: parseInt(computeBearingIn360(this.velocity.dx, - this.velocity.dy)),
@@ -179,13 +179,13 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     }
   }
 
-  itemTracked.toJSON = function() {
+  itemTracked.toJSON = function(roundInt = true) {
     return {
       id: this.idDisplay,
-      x: parseInt(this.x, 10),
-      y: parseInt(this.y, 10),
-      w: parseInt(this.w, 10),
-      h: parseInt(this.h, 10),
+      x: (roundInt ? parseInt(this.x, 10) : this.x),
+      y: (roundInt ? parseInt(this.y, 10) : this.y),
+      w: (roundInt ? parseInt(this.w, 10) : this.w),
+      h: (roundInt ? parseInt(this.h, 10) : this.h),
       confidence: Math.round(this.confidence * 100) / 100,
       // Here we negate dy to be in "normal" carthesian coordinates
       bearing: parseInt(computeBearingIn360(this.velocity.dx, - this.velocity.dy), 10),

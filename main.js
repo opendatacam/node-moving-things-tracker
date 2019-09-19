@@ -173,7 +173,12 @@ fs.readFile(`${pathRawDetectionsInput}`, function (err, f) {
     Tracker.updateTrackedItemsWithNewFrame(detectionsForThisFrame, parseInt(frameNb, 10))
 
     if (!MODE_MOTChallenge) {
-      tracker[frameNb] = Tracker.getJSONOfTrackedItems();
+      if(MODE_DARKNET) {
+        // Do not round coordinates of bbox
+        tracker[frameNb] = Tracker.getJSONOfTrackedItems(false);
+      } else {
+        tracker[frameNb] = Tracker.getJSONOfTrackedItems();
+      }
     } else {
       MOToutput = MOToutput.concat(Tracker.getTrackedItemsInMOTFormat(frameNb));
     }

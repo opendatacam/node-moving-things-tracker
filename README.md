@@ -153,7 +153,7 @@ node-moving-things-tracker --debug --input PATH_TO_YOLO_DETECTIONS.txt
 
 # Run on opendatacam/darknet detection data
 
-Usage with opendatacam/darknet generated tracker data.
+Usage with opendatacam/darknet (https://github.com/opendatacam/darknet/pull/2) generated tracker data 
 
 ```bash
 node-moving-things-tracker --mode opendatacam-darknet --input detectionsFromDarknet.json

@@ -166,7 +166,11 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
         }
       });
     } else {
-      console.log('Nothing detected for frame nº' + frameNb)
+      console.log('[Tracker] Nothing detected for frame nº' + frameNb)
+      // Make existing tracked item available for deletion (to avoid ghost)
+      mapOfItemsTracked.forEach(function(itemTracked) {
+        itemTracked.makeAvailable();
+      });
     }
 
     // Add any unmatched items as new trackedItem only if those new items are not too similar

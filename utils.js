@@ -109,13 +109,17 @@ exports.computeVelocityVector = (item1, item2, nbFrame) => {
 
 */
 
-exports.computeBearingIn360 = function(dx, dy) {
-  var a = Math.atan(dy / dx)
-  a = a * 180 / Math.PI
-  if(dx < 0) {
-    a = a + 180
-  } else if (dy < 0) {
-    a = a + 360 
+exports.computeBearingIn360 = function(dx,dy) {
+  var angle = Math.atan(dx/dy)/(Math.PI/180)
+  if ( angle > 0 ) {
+    if (dy > 0)
+      return angle;
+    else
+      return 180 + angle;
+  } else {
+    if (dx > 0)
+      return 180 + angle;
+    else
+      return 360 + angle;
   }
-  return a;
 }

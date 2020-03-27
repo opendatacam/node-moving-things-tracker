@@ -32,7 +32,7 @@ if (args.debug) {
 
 // If input path not specified abort
 if (!pathRawDetectionsInput) {
-  console.error('Please specify the path to the raw detections file');
+  //console.error('Please specify the path to the raw detections file');
   return;
 }
 

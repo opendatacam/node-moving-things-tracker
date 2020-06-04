@@ -199,6 +199,21 @@ How to benchmark against MOT Challenge : https://github.com/opendatacam/node-mov
 
 No params tweaking is possible via command-line for now, it is currently optimized for tracking cars in traffic videos.
 
+## How does it work
+
+Based on V-IOU tracker: https://github.com/bochinski/iou-tracker/ , paper: http://elvera.nue.tu-berlin.de/files/1547Bochinski2018.pdf
+
+In order to define if an object is the same from one frame to another, we compare the overlapping areas between the two detections between the frames.
+
+![screen shot 2017-10-18 at 15 57 25](https://user-images.githubusercontent.com/533590/31719755-295303c0-b41d-11e7-8059-3ff7bcefd722.png)
+
+By computing the intersection over union:
+
+![screen shot 2017-10-18 at 16 02 12](https://user-images.githubusercontent.com/533590/31719948-c6b69abe-b41d-11e7-8aac-5306e331f8b1.png)
+
+On top of this we added some prediction mecanism for next frame based on velocity / acceleration vector to avoid ID reassignment when the object is missed only for a few frames.
+
+
 ## License
 
 [MIT License](LICENSE)

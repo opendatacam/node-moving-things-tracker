@@ -226,6 +226,15 @@ exports.reset = function() {
   mapOfAllItemsTracked = new Map();
 }
 
+exports.setParams = function(params) {
+  if(params.unMatchedFramesTolerance) {
+    DEFAULT_UNMATCHEDFRAMES_TOLERANCE = params.unMatchedFramesTolerance;
+  }
+  if(params.iouLimit) {
+    IOU_LIMIT = params.iouLimit;
+  }
+}
+
 exports.enableKeepInMemory = function() {
   keepAllHistoryInMemory = true;
 }

@@ -98,7 +98,7 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     return this;
   }
   itemTracked.countDown = function(frameNb) {
-    // Set frame disappear number 
+    // Set frame disappear number
     if(this.disappearFrame === null) {
       this.disappearFrame = frameNb;
       this.disappearArea = {
@@ -212,3 +212,6 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
   return itemTracked;
 };
 
+exports.reset = function() {
+  idDisplay = 0;
+}

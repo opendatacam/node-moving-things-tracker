@@ -1,11 +1,12 @@
-var ItemTracked = require('./ItemTracked').ItemTracked;
+const itemTrackedModule = require('./ItemTracked');
+var ItemTracked = itemTrackedModule.ItemTracked;
 var kdTree = require('./lib/kdTree-min.js').kdTree;
 var isEqual = require('lodash.isequal')
 var iouAreas = require('./utils').iouAreas
 
 var DEBUG_MODE = false;
 
-// DEFAULT_UNMATCHEDFRAMES_TOLERANCE 
+// DEFAULT_UNMATCHEDFRAMES_TOLERANCE
 // This the number of frame we wait when an object isn't matched before considering it gone
 var DEFAULT_UNMATCHEDFRAMES_TOLERANCE = 5;
 // IOU_LIMIT, exclude things from beeing matched if their IOU is lower than this
@@ -24,7 +25,7 @@ var mapOfAllItemsTracked = new Map();
 // By default, we do not keep all the history in memory
 var keepAllHistoryInMemory = false;
 
-// Implementation detail, we store the distance in a KDTREE, we want to be able to exclude values from 
+// Implementation detail, we store the distance in a KDTREE, we want to be able to exclude values from
 // the kdtree search by assigning them KDTREESEARCH_LIMIT + 1
 var KDTREESEARCH_LIMIT = 10000;
 
@@ -79,13 +80,13 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
 
         // First predict the new position of the itemTracked
         var predictedPosition = itemTracked.predictNextPosition()
-        
+
         // Make available for matching
         itemTracked.makeAvailable();
 
         // Search for a detection that matches
         var treeSearchResult = treeDetectionsOfThisFrame.nearest(predictedPosition, 1, KDTREESEARCH_LIMIT)[0];
-        
+
         // Only for debug assessments of predictions
         var treeSearchResultWithoutPrediction = treeDetectionsOfThisFrame.nearest(itemTracked, 1, KDTREESEARCH_LIMIT)[0];
         // Only if we enable the extra refinement
@@ -124,7 +125,7 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
           //     var deltaAreaFirstChoice = Math.abs(detectionFirstChoice.area - itemTrackedArea) / (detectionFirstChoice.area + itemTrackedArea);
           //     var deltaAreaSecondChoice = Math.abs(detectionSecondChoice.area - itemTrackedArea) / (detectionSecondChoice.area + itemTrackedArea);
 
-          //     // Compare the area of each, priorize the detections that as a overal similar area 
+          //     // Compare the area of each, priorize the detections that as a overal similar area
           //     // even if it overlaps less
           //     if(deltaAreaFirstChoice > deltaAreaSecondChoice) {
           //       if(Math.abs(deltaAreaFirstChoice - deltaAreaSecondChoice) > 0.5) {
@@ -184,7 +185,7 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
       matchedList.forEach(function(matched, index) {
         // Iterate through unmatched new detections
         if(!matched) {
-          // Do not add as new tracked item if it is to similar to an existing one 
+          // Do not add as new tracked item if it is to similar to an existing one
           var treeSearchResult = treeItemsTracked.nearest(detectionsOfThisFrame[index], 1, KDTREESEARCH_LIMIT)[0];
 
           if(!treeSearchResult) {
@@ -202,7 +203,7 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
       });
      }
 
-    // Start killing the itemTracked (and predicting next position) 
+    // Start killing the itemTracked (and predicting next position)
     // that are tracked but haven't been matched this frame
     mapOfItemsTracked.forEach(function(itemTracked) {
       if(itemTracked.available) {
@@ -217,13 +218,14 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
         }
       }
     });
-    
+
   }
 }
 
 exports.reset = function() {
   mapOfItemsTracked = new Map();
   mapOfAllItemsTracked = new Map();
+  itemTrackedModule.reset();
 }
 
 exports.setParams = function(params) {

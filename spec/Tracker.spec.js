@@ -11,6 +11,7 @@ const detections = [
       name: 'object'
     }
   ],
+  [], // This empty frame ensure that the object will be removed if fastDelete is enabled.
   [
     {
       x: 0.686925,
@@ -44,15 +45,43 @@ const detections = [
 ];
 
 describe('Tracker', function () {
+  beforeEach(function () {
+    Tracker.reset();
+    Tracker.setParams({
+      items: {
+        fastDelete: true
+      },
+      unMatchedFramesTolerance: 5,
+      iouLimit: 0.05
+    });
+
+    detections.forEach((frame, frameNb) => {
+      Tracker.updateTrackedItemsWithNewFrame(frame, frameNb);
+    });
+  });
+
   describe('reset', function () {
     it('resets ItemTracker idDisplay', function () {
-      detections.forEach((frame, frameNb) => {
-        Tracker.updateTrackedItemsWithNewFrame(frame, frameNb);
-      });
-
       Tracker.reset();
 
       Tracker.updateTrackedItemsWithNewFrame(detections[0], 0);
+
+      expect(Tracker.getJSONOfTrackedItems()[0].id).toBe(0);
+    });
+  });
+
+  describe('fast delete', function () {
+    it('removes items with fast delete', function () {
+      expect(Tracker.getJSONOfTrackedItems()[0].id).toBeGreaterThan(0);
+    });
+
+    it('keeps the item if fastDelete is disabled', function () {
+      Tracker.setParams({ items: { fastDelete: false } });
+      Tracker.reset();
+
+      detections.forEach((frame, frameNb) => {
+        Tracker.updateTrackedItemsWithNewFrame(frame, frameNb);
+      });
 
       expect(Tracker.getJSONOfTrackedItems()[0].id).toBe(0);
     });

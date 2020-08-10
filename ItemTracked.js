@@ -15,6 +15,15 @@ var computeVelocityVector = require('./utils').computeVelocityVector
 // Use a simple incremental unique id for the display
 var idDisplay = 0;
 
+// Default Params
+const params = {
+  // Remove new objects fast if they could not be matched in the next frames.
+  // Setting this to false ensures the object will stick around at least
+  // DEFAULT_UNMATCHEDFRAMES_TOLERANCE frames, even if they could neven be
+  // matched in subsequent frames.
+  fastDelete: true
+}
+
 exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLERANCE){
   var DEFAULT_UNMATCHEDFRAMES_TOLERANCE = DEFAULT_UNMATCHEDFRAMES_TOLERANCE;
   var itemTracked = {};
@@ -111,7 +120,7 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     this.frameUnmatchedLeftBeforeDying--;
     this.isZombie = true;
     // If it was matched less than 1 time, it should die quick
-    if(this.nbTimeMatched <= 1) {
+    if(params.fastDelete && this.nbTimeMatched <= 1) {
       this.frameUnmatchedLeftBeforeDying = -1;
     }
   }
@@ -214,4 +223,10 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
 
 exports.reset = function() {
   idDisplay = 0;
+}
+
+exports.setParams = function(newParams) {
+  if("fastDelete" in newParams) {
+    params.fastDelete = newParams.fastDelete;
+  }
 }

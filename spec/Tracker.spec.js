@@ -48,9 +48,7 @@ describe('Tracker', function () {
   beforeEach(function () {
     Tracker.reset();
     Tracker.setParams({
-      items: {
-        fastDelete: true
-      },
+      fastDelete: true,
       unMatchedFramesTolerance: 5,
       iouLimit: 0.05
     });
@@ -76,7 +74,7 @@ describe('Tracker', function () {
     });
 
     it('keeps the item if fastDelete is disabled', function () {
-      Tracker.setParams({ items: { fastDelete: false } });
+      Tracker.setParams({ fastDelete: false });
       Tracker.reset();
 
       detections.forEach((frame, frameNb) => {

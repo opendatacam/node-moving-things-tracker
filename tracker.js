@@ -6,12 +6,19 @@ var iouAreas = require('./utils').iouAreas
 
 var DEBUG_MODE = false;
 
-// DEFAULT_UNMATCHEDFRAMES_TOLERANCE
-// This the number of frame we wait when an object isn't matched before considering it gone
-var DEFAULT_UNMATCHEDFRAMES_TOLERANCE = 5;
-// IOU_LIMIT, exclude things from beeing matched if their IOU is lower than this
-// 1 means total overlap whereas 0 means no overlap
-var IOU_LIMIT = 0.05
+const params = {
+  // DEFAULT_UNMATCHEDFRAMES_TOLERANCE
+  // This the number of frame we wait when an object isn't matched before considering it gone
+  unMatchedFramesTolerance: 5,
+  // DEFAULT_IOU_LIMIT, exclude things from beeing matched if their IOU is lower than this
+  // 1 means total overlap whereas 0 means no overlap
+  iouLimit: 0.05,
+  // Remove new objects fast if they could not be matched in the next frames.
+  // Setting this to false ensures the object will stick around at least
+  // unMatchedFramesTolerance frames, even if they could neven be matched in
+  // subsequent frames.
+  fastDelete: true
+}
 
 // A dictionary of itemTracked currently tracked
 // key: uuid
@@ -40,7 +47,7 @@ const computeDistance = function(item1, item2) {
   var distance = 1 - iou;
 
   // If the overlap is iou < 0.95, exclude value
-  if(distance > (1 - IOU_LIMIT)) {
+  if(distance > (1 - params.iouLimit)) {
     distance = KDTREESEARCH_LIMIT + 1;
   }
 
@@ -62,7 +69,7 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
   if(mapOfItemsTracked.size === 0) {
     // Just add every detected item as item Tracked
     detectionsOfThisFrame.forEach(function(itemDetected) {
-      var newItemTracked = new ItemTracked(itemDetected, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLERANCE)
+      var newItemTracked = new ItemTracked(itemDetected, frameNb, params.unMatchedFramesTolerance, params.fastDelete)
       // Add it to the map
       mapOfItemsTracked.set(newItemTracked.id, newItemTracked)
       // Add it to the kd tree
@@ -189,7 +196,7 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
           var treeSearchResult = treeItemsTracked.nearest(detectionsOfThisFrame[index], 1, KDTREESEARCH_LIMIT)[0];
 
           if(!treeSearchResult) {
-            var newItemTracked = ItemTracked(detectionsOfThisFrame[index], frameNb, DEFAULT_UNMATCHEDFRAMES_TOLERANCE)
+            var newItemTracked = ItemTracked(detectionsOfThisFrame[index], frameNb, params.unMatchedFramesTolerance, params.fastDelete)
             // Add it to the map
             mapOfItemsTracked.set(newItemTracked.id, newItemTracked)
             // Add it to the kd tree
@@ -228,18 +235,10 @@ exports.reset = function() {
   itemTrackedModule.reset();
 }
 
-exports.setParams = function(params) {
-  if(params.unMatchedFramesTolerance) {
-    DEFAULT_UNMATCHEDFRAMES_TOLERANCE = params.unMatchedFramesTolerance;
-  }
-  if(params.iouLimit) {
-    IOU_LIMIT = params.iouLimit;
-  }
-
-  // To keep the API simple, we just move the params down to the ItemsTracked as well.
-  if("items" in params) {
-    itemTrackedModule.setParams(params.items);
-  }
+exports.setParams = function(newParams) {
+  Object.keys(newParams).forEach((key) => {
+    params[key] = newParams[key];
+  });
 }
 
 exports.enableKeepInMemory = function() {

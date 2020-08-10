@@ -235,6 +235,11 @@ exports.setParams = function(params) {
   if(params.iouLimit) {
     IOU_LIMIT = params.iouLimit;
   }
+
+  // To keep the API simple, we just move the params down to the ItemsTracked as well.
+  if("items" in params) {
+    itemTrackedModule.setParams(params.items);
+  }
 }
 
 exports.enableKeepInMemory = function() {

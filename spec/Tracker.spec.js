@@ -84,4 +84,21 @@ describe('Tracker', function () {
       expect(Tracker.getJSONOfTrackedItems()[0].id).toBe(0);
     });
   });
+
+  describe('custom distance function', function() {
+    var distanceSpy;
+    beforeEach(function() {
+      distanceSpy = jasmine.createSpy('distance spy', Tracker.iouDistance);
+
+      Tracker.reset();
+      Tracker.setParams({ distanceFunc: distanceSpy });
+      detections.forEach((frame, frameNb) => {
+        Tracker.updateTrackedItemsWithNewFrame(frame, frameNb);
+      });
+    });
+
+    it('called the custom distance', function() {
+      expect(distanceSpy).toHaveBeenCalled();
+    });
+  });
 });

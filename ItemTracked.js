@@ -216,9 +216,3 @@ exports.ItemTracked = function(properties, frameNb, unMatchedFramesTolerance, fa
 exports.reset = function() {
   idDisplay = 0;
 }
-
-exports.setParams = function(newParams) {
-  if("fastDelete" in newParams) {
-    params.fastDelete = newParams.fastDelete;
-  }
-}

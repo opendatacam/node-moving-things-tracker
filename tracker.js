@@ -6,6 +6,23 @@ var iouAreas = require('./utils').iouAreas
 
 var DEBUG_MODE = false;
 
+// Distance function
+const iouDistance = function(item1, item2) {
+  // IOU distance, between 0 and 1
+  // The smaller the less overlap
+  var iou = iouAreas(item1, item2);
+
+  // Invert this as the KDTREESEARCH is looking for the smaller value
+  var distance = 1 - iou;
+
+  // If the overlap is iou < 0.95, exclude value
+  if(distance > (1 - params.iouLimit)) {
+    distance = KDTREESEARCH_LIMIT + 1;
+  }
+
+  return distance;
+}
+
 const params = {
   // DEFAULT_UNMATCHEDFRAMES_TOLERANCE
   // This the number of frame we wait when an object isn't matched before considering it gone
@@ -17,7 +34,9 @@ const params = {
   // Setting this to false ensures the object will stick around at least
   // unMatchedFramesTolerance frames, even if they could neven be matched in
   // subsequent frames.
-  fastDelete: true
+  fastDelete: true,
+  // The function to use to determine the distance between to detected objects
+  distanceFunc: iouDistance
 }
 
 // A dictionary of itemTracked currently tracked
@@ -37,33 +56,18 @@ var keepAllHistoryInMemory = false;
 var KDTREESEARCH_LIMIT = 10000;
 
 
-// Distance function
-const computeDistance = function(item1, item2) {
-  // IOU distance, between 0 and 1
-  // The smaller the less overlap
-  var iou = iouAreas(item1, item2);
 
-  // Invert this as the KDTREESEARCH is looking for the smaller value
-  var distance = 1 - iou;
 
-  // If the overlap is iou < 0.95, exclude value
-  if(distance > (1 - params.iouLimit)) {
-    distance = KDTREESEARCH_LIMIT + 1;
-  }
-
-  return distance;
-}
-
-exports.computeDistance = computeDistance;
+exports.computeDistance = iouDistance;
 
 exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb) {
 
   // A kd-tree containing all the itemtracked
   // Need to rebuild on each frame, because itemTracked positions have changed
-  var treeItemsTracked = new kdTree(Array.from(mapOfItemsTracked.values()), computeDistance, ["x", "y", "w", "h"]);
+  var treeItemsTracked = new kdTree(Array.from(mapOfItemsTracked.values()), params.distanceFunc, ["x", "y", "w", "h"]);
 
   // Contruct a kd tree for the detections of this frame
-  var treeDetectionsOfThisFrame = new kdTree(detectionsOfThisFrame, computeDistance, ["x", "y", "w", "h"]);
+  var treeDetectionsOfThisFrame = new kdTree(detectionsOfThisFrame, params.distanceFunc, ["x", "y", "w", "h"]);
 
   // SCENARIO 1: itemsTracked map is empty
   if(mapOfItemsTracked.size === 0) {
@@ -187,7 +191,7 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
     // to existing trackedItems this avoids adding some double match of YOLO and bring down drasticly reassignments
     if(mapOfItemsTracked.size > 0) { // Safety check to see if we still have object tracked (could have been deleted previously)
       // Rebuild tracked item tree to take in account the new positions
-      treeItemsTracked = new kdTree(Array.from(mapOfItemsTracked.values()), computeDistance, ["x", "y", "w", "h"]);
+      treeItemsTracked = new kdTree(Array.from(mapOfItemsTracked.values()), params.distanceFunc, ["x", "y", "w", "h"]);
       // console.log(`Nb new items Unmatched : ${matchedList.filter((isMatched) => isMatched === false).length}`)
       matchedList.forEach(function(matched, index) {
         // Iterate through unmatched new detections

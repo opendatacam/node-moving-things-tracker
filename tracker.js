@@ -17,7 +17,7 @@ const iouDistance = function(item1, item2) {
 
   // If the overlap is iou < 0.95, exclude value
   if(distance > (1 - params.iouLimit)) {
-    distance = KDTREESEARCH_LIMIT + 1;
+    distance = params.distanceLimit + 1;
   }
 
   return distance;
@@ -36,7 +36,10 @@ const params = {
   // subsequent frames.
   fastDelete: true,
   // The function to use to determine the distance between to detected objects
-  distanceFunc: iouDistance
+  distanceFunc: iouDistance,
+  // The distance limit for matching. If values need to be excluded from
+  // matching set their distance to something greater than the distance limit
+  distanceLimit: 10000
 }
 
 // A dictionary of itemTracked currently tracked
@@ -50,12 +53,6 @@ var mapOfAllItemsTracked = new Map();
 
 // By default, we do not keep all the history in memory
 var keepAllHistoryInMemory = false;
-
-// Implementation detail, we store the distance in a KDTREE, we want to be able to exclude values from
-// the kdtree search by assigning them KDTREESEARCH_LIMIT + 1
-var KDTREESEARCH_LIMIT = 10000;
-
-
 
 
 exports.computeDistance = iouDistance;
@@ -96,12 +93,12 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
         itemTracked.makeAvailable();
 
         // Search for a detection that matches
-        var treeSearchResult = treeDetectionsOfThisFrame.nearest(predictedPosition, 1, KDTREESEARCH_LIMIT)[0];
+        var treeSearchResult = treeDetectionsOfThisFrame.nearest(predictedPosition, 1, params.distanceLimit)[0];
 
         // Only for debug assessments of predictions
-        var treeSearchResultWithoutPrediction = treeDetectionsOfThisFrame.nearest(itemTracked, 1, KDTREESEARCH_LIMIT)[0];
+        var treeSearchResultWithoutPrediction = treeDetectionsOfThisFrame.nearest(itemTracked, 1, params.distanceLimit)[0];
         // Only if we enable the extra refinement
-        var treeSearchMultipleResults = treeDetectionsOfThisFrame.nearest(predictedPosition, 2, KDTREESEARCH_LIMIT);
+        var treeSearchMultipleResults = treeDetectionsOfThisFrame.nearest(predictedPosition, 2, params.distanceLimit);
 
         // If we have found something
         if(treeSearchResult) {
@@ -197,7 +194,7 @@ exports.updateTrackedItemsWithNewFrame = function(detectionsOfThisFrame, frameNb
         // Iterate through unmatched new detections
         if(!matched) {
           // Do not add as new tracked item if it is to similar to an existing one
-          var treeSearchResult = treeItemsTracked.nearest(detectionsOfThisFrame[index], 1, KDTREESEARCH_LIMIT)[0];
+          var treeSearchResult = treeItemsTracked.nearest(detectionsOfThisFrame[index], 1, params.distanceLimit)[0];
 
           if(!treeSearchResult) {
             var newItemTracked = ItemTracked(detectionsOfThisFrame[index], frameNb, params.unMatchedFramesTolerance, params.fastDelete)

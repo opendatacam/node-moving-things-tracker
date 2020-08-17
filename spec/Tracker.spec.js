@@ -101,4 +101,26 @@ describe('Tracker', function () {
       expect(distanceSpy).toHaveBeenCalled();
     });
   });
+
+  describe('distance limit', function() {
+    const d1 = detections[0][0];
+    const d2 = detections[2][0];
+    const params = { distanceLimit: 20000 };
+
+    beforeAll(function() {
+      Tracker.setParams(params);
+    });
+
+    it('is under limit if match successful', function() {
+      expect(Tracker.computeDistance(d1, d2)).toBeLessThanOrEqual(params.distanceLimit);
+    });
+
+    it('is above distance limit if match fails', function() {
+      Tracker.setParams({
+        distanceLimit: params.distanceLimit,
+        iouLimit: 0.99
+      });
+      expect(Tracker.computeDistance(d1, d2)).toBeGreaterThan(params.distanceLimit);
+    })
+  });
 });

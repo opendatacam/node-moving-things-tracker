@@ -57,5 +57,9 @@ typings/
 # dotenv environment variables file
 .env
 
+# macOS System Files
 .DS_Store
+.nosync
 
+# Development Environment
+.vscode

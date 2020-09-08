@@ -15,16 +15,17 @@ var computeVelocityVector = require('./utils').computeVelocityVector
 // Use a simple incremental unique id for the display
 var idDisplay = 0;
 
-exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLERANCE){
-  var DEFAULT_UNMATCHEDFRAMES_TOLERANCE = DEFAULT_UNMATCHEDFRAMES_TOLERANCE;
+exports.ItemTracked = function(properties, frameNb, unMatchedFramesTolerance, fastDelete){
+  var DEFAULT_UNMATCHEDFRAMES_TOLERANCE = unMatchedFramesTolerance;
   var itemTracked = {};
   // ==== Private =====
   // Am I available to be matched?
   itemTracked.available = true;
   // Should I be deleted?
   itemTracked.delete = false;
+  itemTracked.fastDelete = fastDelete;
   // How many unmatched frame should I survive?
-  itemTracked.frameUnmatchedLeftBeforeDying = DEFAULT_UNMATCHEDFRAMES_TOLERANCE;
+  itemTracked.frameUnmatchedLeftBeforeDying = unMatchedFramesTolerance;
   itemTracked.isZombie = false;
   itemTracked.appearFrame = frameNb;
   itemTracked.disappearFrame = null;
@@ -98,7 +99,7 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     return this;
   }
   itemTracked.countDown = function(frameNb) {
-    // Set frame disappear number 
+    // Set frame disappear number
     if(this.disappearFrame === null) {
       this.disappearFrame = frameNb;
       this.disappearArea = {
@@ -111,7 +112,7 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
     this.frameUnmatchedLeftBeforeDying--;
     this.isZombie = true;
     // If it was matched less than 1 time, it should die quick
-    if(this.nbTimeMatched <= 1) {
+    if(this.fastDelete && this.nbTimeMatched <= 1) {
       this.frameUnmatchedLeftBeforeDying = -1;
     }
   }
@@ -212,3 +213,6 @@ exports.ItemTracked = function(properties, frameNb, DEFAULT_UNMATCHEDFRAMES_TOLE
   return itemTracked;
 };
 
+exports.reset = function() {
+  idDisplay = 0;
+}

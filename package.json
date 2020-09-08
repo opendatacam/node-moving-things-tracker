@@ -1,6 +1,6 @@
 {
   "name": "node-moving-things-tracker",
-  "version": "0.7.5",
+  "version": "0.8.0",
   "description": "Tracker by detections in javascript for node.js / browsers",
   "url": "https://github.com/tdurand/node-moving-things-tracker",
   "main": "main.js",
@@ -8,11 +8,12 @@
     "node-moving-things-tracker": "main.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine"
   },
   "author": "@tdurand",
   "contributors": [
-    "Benedikt Groß <b-g> (http://benedikt-gross.de/)"
+    "Benedikt Groß <b-g> (http://benedikt-gross.de/)",
+    "Valentin Sawadski <vsaw> (https://github.com/vsaw/)"
   ],
   "license": "MIT",
   "dependencies": {
@@ -20,5 +21,7 @@
     "minimist": "^1.2.0",
     "uuid": "^3.2.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "jasmine": "^3.6.1"
+  }
 }

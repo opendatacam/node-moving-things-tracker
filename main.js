@@ -247,6 +247,16 @@ fs.readFile(`${pathRawDetectionsInput}`, function (err, f) {
         }
       });
     });
+  } else {
+    // Compute the lengths of all trajectories
+    const count = MOToutput.reduce((acc, e) => {
+      var id = e.split(',')[1];
+      return acc.set(id, (acc.get(id) || 0) + 1);
+    }, new Map());
+
+    // MOT detections have a lot of false positives, so it's better to remove
+    // short trajectories, which are likely due to false positives
+    MOToutput = MOToutput.filter(line => count.get(line.split(',')[1]) >= 10);
   }
 
   if (!MODE_MOTChallenge) {

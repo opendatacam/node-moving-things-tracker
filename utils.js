@@ -7,11 +7,11 @@ exports.isDetectionTooLarge = (detections, largestAllowed) => {
 }
 
 const isInsideArea = (area, point) => {
-  const xMin = area.x
-  const xMax = area.x + area.w;
-  const yMin = area.y
-  const yMax = area.y + area.h;
-  
+  const xMin = area.x - area.w / 2;
+  const xMax = area.x + area.w / 2;
+  const yMin = area.y - area.h / 2;
+  const yMax = area.y + area.h / 2;
+
   if(point.x >= xMin &&
      point.x <= xMax &&
      point.y >= yMin &&
@@ -35,10 +35,10 @@ exports.ignoreObjectsNotToDetect = (detections, objectsToDetect) => {
 
 const getRectangleEdges = (item) => {
   return {
-    x0: item.x,
-    y0: item.y,
-    x1: item.x + item.w,
-    y1: item.y + item.h
+    x0: item.x - item.w / 2,
+    y0: item.y - item.h / 2,
+    x1: item.x + item.w / 2,
+    y1: item.y + item.h / 2,
   }
 }
 

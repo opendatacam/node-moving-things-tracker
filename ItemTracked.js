@@ -196,7 +196,7 @@ exports.ItemTracked = function(properties, frameNb, unMatchedFramesTolerance, fa
   }
 
   itemTracked.toMOT = function(frameIndex) {
-    return `${frameIndex},${this.idDisplay},${this.x},${this.y},${this.w},${this.h},${this.confidence / 100},-1,-1,-1`;
+    return `${frameIndex},${this.idDisplay},${this.x - this.w / 2},${this.y - this.h / 2},${this.w},${this.h},${this.confidence / 100},-1,-1,-1`;
   }
 
   itemTracked.toJSONGenericInfo = function() {

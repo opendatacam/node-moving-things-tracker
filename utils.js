@@ -71,8 +71,8 @@ exports.iouAreas = (item1, item2) => {
 
 exports.computeVelocityVector = (item1, item2, nbFrame) => {
   return {
-    dx: (item2.x - item1.x) / nbFrame,
-    dy: (item2.y - item1.y) / nbFrame,
+    dx: (item2.x + item2.w / 2 - item1.x - item1.w / 2) / nbFrame,
+    dy: (item2.y + item2.h / 2 - item1.y - item1.h / 2) / nbFrame,
   }
 }
 

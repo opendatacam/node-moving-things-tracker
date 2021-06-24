@@ -143,11 +143,13 @@ fs.readFile(`${pathRawDetectionsInput}`, function (err, f) {
             confidence: parseFloat(detectionOfThisFrameArray[6]) * 100,
             name: ""
           }
-          // If it's the first object for this frame, init empty array
-          if (!detections[detectionFrameIndex]) {
-            detections[detectionFrameIndex] = []
+          if (detection.confidence > 0) {
+            // If it's the first object for this frame, init empty array
+            if (!detections[detectionFrameIndex]) {
+              detections[detectionFrameIndex] = []
+            }
+            detections[detectionFrameIndex].push(detection);
           }
-          detections[detectionFrameIndex].push(detection);
         }
       });
     }

@@ -1,8 +1,8 @@
 {
   "name": "node-moving-things-tracker",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Tracker by detections in javascript for node.js / browsers",
-  "url": "https://github.com/tdurand/node-moving-things-tracker",
+  "url": "https://github.com/opendatacam/node-moving-things-tracker",
   "main": "main.js",
   "bin": {
     "node-moving-things-tracker": "main.js"
@@ -13,7 +13,8 @@
   "author": "@tdurand",
   "contributors": [
     "Benedikt Groß <b-g> (http://benedikt-gross.de/)",
-    "Valentin Sawadski <vsaw> (https://github.com/vsaw/)"
+    "Valentin Sawadski <vsaw> (https://github.com/vsaw/)",
+    "Adrian Kretz <akretz> (https://github.com/akretz)"
   ],
   "license": "MIT",
   "dependencies": {

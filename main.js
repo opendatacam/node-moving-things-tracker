@@ -135,11 +135,14 @@ fs.readFile(`${pathRawDetectionsInput}`, function (err, f) {
         var detectionOfThisFrameArray = line.split(",");
         var detectionFrameIndex = parseInt(detectionOfThisFrameArray[0], 10);
         if (!Number.isNaN(detectionFrameIndex)) {
+          var w = parseFloat(detectionOfThisFrameArray[4]);
+          var h = parseFloat(detectionOfThisFrameArray[5]);
+
           var detection = {
-            x: parseFloat(detectionOfThisFrameArray[2]),
-            y: parseFloat(detectionOfThisFrameArray[3]),
-            w: parseFloat(detectionOfThisFrameArray[4]),
-            h: parseFloat(detectionOfThisFrameArray[5]),
+            x: parseFloat(detectionOfThisFrameArray[2]) + w / 2,
+            y: parseFloat(detectionOfThisFrameArray[3]) + h / 2,
+            w,
+            h,
             confidence: parseFloat(detectionOfThisFrameArray[6]) * 100,
             name: ""
           }

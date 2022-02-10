@@ -63,3 +63,6 @@ typings/
 
 # Development Environment
 .vscode
+
+MOT17Labels.zip
+benchmark/MOT17/

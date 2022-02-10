@@ -146,11 +146,13 @@ fs.readFile(`${pathRawDetectionsInput}`, function (err, f) {
             confidence: parseFloat(detectionOfThisFrameArray[6]) * 100,
             name: ""
           }
-          // If it's the first object for this frame, init empty array
-          if (!detections[detectionFrameIndex]) {
-            detections[detectionFrameIndex] = []
+          if (detection.confidence > 0) {
+            // If it's the first object for this frame, init empty array
+            if (!detections[detectionFrameIndex]) {
+              detections[detectionFrameIndex] = []
+            }
+            detections[detectionFrameIndex].push(detection);
           }
-          detections[detectionFrameIndex].push(detection);
         }
       });
     }
@@ -250,6 +252,16 @@ fs.readFile(`${pathRawDetectionsInput}`, function (err, f) {
         }
       });
     });
+  } else {
+    // Compute the lengths of all trajectories
+    const count = MOToutput.reduce((acc, e) => {
+      var id = e.split(',')[1];
+      return acc.set(id, (acc.get(id) || 0) + 1);
+    }, new Map());
+
+    // MOT detections have a lot of false positives, so it's better to remove
+    // short trajectories, which are likely due to false positives
+    MOToutput = MOToutput.filter(line => count.get(line.split(',')[1]) >= 10);
   }
 
   if (!MODE_MOTChallenge) {

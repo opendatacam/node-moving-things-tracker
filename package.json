@@ -20,6 +20,7 @@
   "dependencies": {
     "lodash.isequal": "^4.5.0",
     "minimist": "^1.2.0",
+    "munkres-js": "^1.2.2",
     "uuid": "^3.2.1"
   },
   "devDependencies": {

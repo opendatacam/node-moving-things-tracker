@@ -12,6 +12,9 @@ var computeVelocityVector = require('./utils').computeVelocityVector
 //   "name": "car"
 // }
 
+/** The maximum length of the item history. */
+exports.ITEM_HISTORY_MAX_LENGTH = 15;
+
 // Use a simple incremental unique id for the display
 var idDisplay = 0;
 
@@ -48,6 +51,9 @@ exports.ItemTracked = function(properties, frameNb, unMatchedFramesTolerance, fa
     h: properties.h,
     confidence: properties.confidence
   });
+  if(itemTracked.itemHistory.length >= exports.ITEM_HISTORY_MAX_LENGTH) {
+    itemTracked.itemHistory.shift();
+  }
   itemTracked.velocity = {
     dx: 0,
     dy: 0
@@ -79,6 +85,9 @@ exports.ItemTracked = function(properties, frameNb, unMatchedFramesTolerance, fa
       h: this.h,
       confidence: this.confidence
     });
+    if(itemTracked.itemHistory.length >= exports.ITEM_HISTORY_MAX_LENGTH) {
+      itemTracked.itemHistory.shift();
+    }
     this.name = properties.name;
     if(this.nameCount[properties.name]) {
       this.nameCount[properties.name]++;
@@ -124,6 +133,9 @@ exports.ItemTracked = function(properties, frameNb, unMatchedFramesTolerance, fa
       h: this.h,
       confidence: this.confidence
     });
+    if(itemTracked.itemHistory.length >= exports.ITEM_HISTORY_MAX_LENGTH) {
+      itemTracked.itemHistory.shift();
+    }
     this.x = this.x + this.velocity.dx
     this.y = this.y + this.velocity.dy
   }
@@ -142,11 +154,18 @@ exports.ItemTracked = function(properties, frameNb, unMatchedFramesTolerance, fa
   }
   // Velocity vector based on the last 15 frames
   itemTracked.updateVelocityVector = function() {
-    var AVERAGE_NBFRAME = 15;
-    if(this.itemHistory.length <= AVERAGE_NBFRAME) {
-      return computeVelocityVector(this.itemHistory[0], this.itemHistory[this.itemHistory.length - 1], this.itemHistory.length);
+    if(exports.ITEM_HISTORY_MAX_LENGTH <= 2) {
+      return { dx: undefined, dy: undefined, }
+    }
+
+    if(this.itemHistory.length <= exports.ITEM_HISTORY_MAX_LENGTH) {
+      const start = this.itemHistory[0];
+      const end = this.itemHistory[this.itemHistory.length - 1];
+      return computeVelocityVector(start, end, this.itemHistory.length);
     } else {
-      return computeVelocityVector(this.itemHistory[this.itemHistory.length - AVERAGE_NBFRAME], this.itemHistory[this.itemHistory.length - 1], AVERAGE_NBFRAME);
+      const start = this.itemHistory[this.itemHistory.length - exports.ITEM_HISTORY_MAX_LENGTH];
+      const end = this.itemHistory[this.itemHistory.length - 1];
+      return computeVelocityVector(start, end, exports.ITEM_HISTORY_MAX_LENGTH);
     }
   }
 
